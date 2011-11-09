@@ -1987,6 +1987,9 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 		// Add player to auth manager
 		if(m_authmanager.exists(playername) == false)
 		{
+            SendAccessDenied(m_con, peer_id, L"You are not in white-list. Go to http://minetest.ru/");
+			return;
+            #if 0
 			infostream<<"Server: adding player "<<playername
 					<<" to auth manager"<<std::endl;
 			m_authmanager.add(playername);
@@ -1994,6 +1997,7 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 			m_authmanager.setPrivs(playername,
 					stringToPrivs(g_settings->get("default_privs")));
 			m_authmanager.save();
+            #endif
 		}
 		
 		// Enforce user limit.
