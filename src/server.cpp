@@ -2022,6 +2022,10 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 			return;
 		}
 
+        // this magic fixes (very dirty-fixes) bug when you are 3 nodes (cubes) down after logout-login
+        v3f position = player->getPosition();
+        position.Y += 3;
+        player->setPosition(position);
 		/*
 			Answer with a TOCLIENT_INIT
 		*/
