@@ -1139,7 +1139,7 @@ void ServerEnvironment::step(float dtime)
 				*/
 				if(n.getContent() == CONTENT_CACTUS)
 				{
-					if(myrand()%50 == 0)
+					if(myrand()%40 == 0)
 					{
                         int grow_size = 0;
                         v3s16 first_cactii_block;
@@ -1163,11 +1163,11 @@ void ServerEnvironment::step(float dtime)
 					}
 				}
                 /*
-					Let Cactii grow
+					Let papyrus grow
 				*/
 				if(n.getContent() == CONTENT_PAPYRUS)
 				{
-					if(myrand()%50 == 0)
+					if(myrand()%35 == 0)
 					{
                         int grow_size = 0;
                         v3s16 first_papyrus_block;
