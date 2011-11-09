@@ -42,6 +42,8 @@ std::string privsToString(u64 privs)
 		os<<"shout,";
 	if(privs & PRIV_BAN)
 		os<<"ban,";
+    if (privs & PRIV_WHITELIST)
+        os << "whitelist,";
 	if(os.tellp())
 	{
 		// Drop the trailing comma. (Why on earth can't
@@ -74,6 +76,8 @@ u64 stringToPrivs(std::string str)
 			privs |= PRIV_SHOUT;
 		else if(s == "ban")
 			privs |= PRIV_BAN;
+        else if (s == "whitelist")
+            privs |= PRIV_WHITELIST;
 		else
 			return PRIV_INVALID;
 	}

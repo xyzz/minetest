@@ -305,6 +305,45 @@ void cmd_clearobjects(std::wostringstream &os,
 	ctx->flags |= SEND_TO_OTHERS;
 }
 
+std::string generate_pwd() {
+    std::string result = "";
+    for (int i = 0; i < 5; ++i) {
+        result += ('a' + myrand() % 26);
+    }
+    return result;
+}
+
+void cmd_whitelist(std::wostringstream &os, ServerCommandContext *ctx)
+{
+	if((ctx->privs & PRIV_WHITELIST) == 0)
+	{
+		os<<L"-!- You don't have permission to do that";
+		return;
+	}
+
+	if(ctx->parms.size() < 2)
+	{
+		os<<L"-!- Please, specify a nickname! ";
+		return;
+	}
+
+   
+    std::string playername = wide_to_narrow(ctx->parms[1]).c_str(); 
+    Player *player = ctx->env->getPlayer(wide_to_narrow(ctx->parms[1]).c_str());
+
+    if(player == NULL)
+    {
+        std::string password = generate_pwd();
+        os<<L"-!- Adding new player, name: " << narrow_to_wide(playername) << L" password: " << narrow_to_wide(password);
+        ctx->server->addUser(playername, password);
+        return;
+    } else {
+        std::string password = generate_pwd();
+        os<<L"-!- Changing password for: " << narrow_to_wide(playername) << L" new password is: " << narrow_to_wide(password);
+        ctx->server->changePassword(playername, password);
+        return;
+    }
+}
 
 std::wstring processServerCommand(ServerCommandContext *ctx)
 {
@@ -328,6 +367,8 @@ std::wstring processServerCommand(ServerCommandContext *ctx)
 			os<<L" grant revoke";
 		if(privs & PRIV_BAN)
 			os<<L" ban unban";
+        if (privs & PRIV_WHITELIST)
+            os << L" white";
 	}
 	else if(ctx->parms[0] == L"status")
 		cmd_status(os, ctx);
@@ -349,6 +390,8 @@ std::wstring processServerCommand(ServerCommandContext *ctx)
 		cmd_me(os, ctx);
 	else if(ctx->parms[0] == L"clearobjects")
 		cmd_clearobjects(os, ctx);
+    else if (ctx->parms[0] == L"white")
+        cmd_whitelist(os, ctx);
 	else
 		os<<L"-!- Invalid command: " + ctx->parms[0];
 	

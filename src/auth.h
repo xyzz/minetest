@@ -40,6 +40,8 @@ const u64 PRIV_SHOUT = 32;           // Can broadcast chat messages to all
                                      // players
 const u64 PRIV_BAN = 64;             // Can ban players
 
+const u64 PRIV_WHITELIST = 128;     // can add players to whitelist (actually, it is registering, but auto-registration was disabled for this server)
+
 // Default privileges - these can be overriden for new players using the
 // config option "default_privs" - however, this value still applies for
 // players that existed before the privileges system was added.

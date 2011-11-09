@@ -463,6 +463,25 @@ public:
 		return;
 	}
 
+    void addUser(const std::string &playername, const std::string &checkpwd)
+    {
+        m_authmanager.add(playername);
+		m_authmanager.setPassword(playername, translatePassword(playername, narrow_to_wide(checkpwd)));
+		//m_authmanager.setPrivs(playername,
+		//	stringToPrivs(g_settings->get("default_privs")));
+		m_authmanager.save();
+
+    }
+
+    void changePassword(const std::string &playername, const std::string &checkpwd)
+    {
+		m_authmanager.setPassword(playername, translatePassword(playername, narrow_to_wide(checkpwd)));
+		//m_authmanager.setPrivs(playername,
+		//	stringToPrivs(g_settings->get("default_privs")));
+		m_authmanager.save();
+
+    }
+
 	std::string getBanDescription(const std::string &ip_or_name)
 	{
 		return m_banmanager.getBanDescription(ip_or_name);
