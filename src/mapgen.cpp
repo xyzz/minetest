@@ -1674,7 +1674,8 @@ void make_block(BlockMakeData *data)
 		/*
 			Add meseblocks
 		*/
-		for(s16 i=0; i<approx_ground_depth/4; i++)
+        /* NO WAY! */
+		/*for(s16 i=0; i<approx_ground_depth/4; i++)
 		{
 			if(mineralrandom.next()%50 == 0)
 			{
@@ -1691,7 +1692,7 @@ void make_block(BlockMakeData *data)
 				}
 					
 			}
-		}
+		}*/
 		/*
 			Add others
 		*/
@@ -2076,8 +2077,9 @@ void make_block(BlockMakeData *data)
 		*/
 		
 		float surface_humidity = surface_humidity_2d(data->seed, p2d_center);
-		bool is_jungle = surface_humidity > 0.75;
-		// Amount of trees
+		//bool is_jungle = surface_humidity > 0.75;
+		bool is_jungle = false;
+        // Amount of trees
 		u32 tree_count = block_area_nodes * tree_amount_2d(data->seed, p2d_center);
 		if(is_jungle)
 			tree_count *= 5;
