@@ -53,6 +53,12 @@ if(WIN32)
 			CACHE FILEPATH "Path to zlibwapi.dll (for installation)")
 	set(IRRLICHT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/../../irrlicht-1.7.2"
 			CACHE PATH "irrlicht dir")
+	set(FREETYPE_INCLUDE_DIR_ft2build "${PROJECT_SOURCE_DIR}/../../freetype2/include/"
+			CACHE PATH "freetype include dir")
+	set(FREETYPE_INCLUDE_DIR_freetype2 "${PROJECT_SOURCE_DIR}/../../freetype2/include/freetype"
+			CACHE PATH "freetype include dir")
+	set(FREETYPE_LIBRARY "${PROJECT_SOURCE_DIR}/../../freetype2/objs/win32/vc2005/freetype247.lib"
+			CACHE FILEPATH "Path to freetype247.lib")
 else()
 	# Unix probably
 	if(BUILD_CLIENT)
@@ -83,6 +89,10 @@ endif()
 
 find_package(Jthread REQUIRED)
 find_package(Sqlite3 REQUIRED)
+find_package(Freetype REQUIRED)
+
+set(CGUITTFONT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cguittfont")
+set(CGUITTFONT_LIBRARY cguittfont)
 
 configure_file(
 	"${PROJECT_SOURCE_DIR}/cmake_config.h.in"
@@ -154,6 +164,7 @@ set(minetest_SRCS
 	camera.cpp
 	clouds.cpp
 	clientobject.cpp
+	intlGUIEditBox.cpp
 	guiMainMenu.cpp
 	guiKeyChangeMenu.cpp
 	guiMessageMenu.cpp
@@ -180,9 +191,11 @@ include_directories(
 	${ZLIB_INCLUDE_DIR}
 	${CMAKE_BUILD_TYPE}
 	${PNG_INCLUDE_DIR}
+	${FREETYPE_INCLUDE_DIRS}
 	${GETTEXT_INCLUDE_DIR}
 	${JTHREAD_INCLUDE_DIR}
 	${SQLITE3_INCLUDE_DIR}
+	${CGUITTFONT_INCLUDE_DIR}
 )
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
@@ -198,11 +211,13 @@ if(BUILD_CLIENT)
 		${BZIP2_LIBRARIES}
 		${PNG_LIBRARIES}
 		${X11_LIBRARIES}
+		${FREETYPE_LIBRARIES}
 		${GETTEXT_LIBRARY}
 		${JTHREAD_LIBRARY}
 		${SQLITE3_LIBRARY}
 		${PLATFORM_LIBS}
 		${CLIENT_PLATFORM_LIBS}
+		${CGUITTFONT_LIBRARY}
 	)
 endif(BUILD_CLIENT)
 
@@ -363,5 +378,9 @@ if (SQLITE3_FOUND)
 else (SQLITE3_FOUND)
 add_subdirectory(sqlite)
 endif (SQLITE3_FOUND)
+
+if (BUILD_CLIENT)
+	add_subdirectory(cguittfont)
+endif (BUILD_CLIENT)
 
 #end
