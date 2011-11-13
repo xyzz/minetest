@@ -4156,7 +4156,7 @@ v3f findSpawnPos(ServerMap &map)
 		// Get sector (NOTE: Don't get because it's slow)
 		//m_env.getMap().emergeSector(sectorpos);
 		// Get ground height at point (fallbacks to heightmap function)
-		groundheight = map.findGroundLevel(nodepos);
+        groundheight = map.findGroundLevel(nodepos) + 1;
 		// Don't go underwater
 		if(groundheight < WATER_LEVEL)
 		{
