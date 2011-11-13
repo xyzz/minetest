@@ -1196,7 +1196,7 @@ int main(int argc, char *argv[])
 	fs::CreateDir(porting::path_userdata);
 
 	init_gettext((porting::path_data+DIR_DELIM+".."+DIR_DELIM+"locale").c_str());
-	
+
 	// Initialize debug streams
 #ifdef RUN_IN_PLACE
 	std::string debugfile = DEBUGFILE;
