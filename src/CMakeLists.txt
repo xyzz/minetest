@@ -143,7 +143,7 @@ set(common_SRCS
 if(WIN32)
 	if(MINGW)
 		ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o
-			COMMAND windres.exe -I${CMAKE_CURRENT_SOURCE_DIR}
+			COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}
 			-i${CMAKE_CURRENT_SOURCE_DIR}/winresource.rc
 			-o ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o)
 		SET(common_SRCS ${common_SRCS} ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o)
