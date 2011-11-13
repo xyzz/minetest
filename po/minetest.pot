@@ -485,3 +485,43 @@ msgid ""
 "- ESC: This menu\n"
 "- T: Chat\n"
 msgstr ""
+
+#: game.cpp:702
+msgid "Loading..."
+msgstr ""
+
+#: game.cpp:710
+msgid "Creating server..."
+msgstr ""
+
+#: game.cpp:720
+msgid "Creating client..."
+msgstr ""
+
+#: game.cpp:725
+msgid "Resolving address..."
+msgstr ""
+
+#: game.cpp:738
+msgid "Couldn't resolve address"
+msgstr ""
+
+#: game.cpp:774
+msgid "Connecting to server... (timeout in "
+msgstr ""
+
+#: game.cpp:776
+msgid " seconds)"
+msgstr ""
+
+#: game.cpp:803 game.cpp:978
+msgid "Access denied. Reason: "
+msgstr ""
+
+#: game.cpp:809
+msgid "Connection timed out."
+msgstr ""
+
+#: game.cpp:2381
+msgid "Shutting down stuff..."
+msgstr ""

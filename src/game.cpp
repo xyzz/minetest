@@ -699,7 +699,7 @@ void the_game(
 	/*gui::IGUIStaticText *gui_loadingtext = */
 	//draw_load_screen(L"Loading and connecting...", driver, font);
 
-	draw_load_screen(L"Loading...", driver, font);
+	draw_load_screen(wgettext("Loading..."), driver, font);
 	
 	/*
 		Create server.
@@ -707,7 +707,7 @@ void the_game(
 	*/
 	SharedPtr<Server> server;
 	if(address == ""){
-		draw_load_screen(L"Creating server...", driver, font);
+		draw_load_screen(wgettext("Creating server..."), driver, font);
 		infostream<<"Creating server"<<std::endl;
 		server = new Server(map_dir, configpath);
 		server->start(port);
@@ -717,12 +717,12 @@ void the_game(
 		Create client
 	*/
 
-	draw_load_screen(L"Creating client...", driver, font);
+	draw_load_screen(wgettext("Creating client..."), driver, font);
 	infostream<<"Creating client"<<std::endl;
 	MapDrawControl draw_control;
 	Client client(device, playername.c_str(), password, draw_control);
 			
-	draw_load_screen(L"Resolving address...", driver, font);
+	draw_load_screen(wgettext("Resolving address..."), driver, font);
 	Address connect_address(0,0,0,0, port);
 	try{
 		if(address == "")
@@ -735,7 +735,7 @@ void the_game(
 	{
 		errorstream<<"Couldn't resolve address"<<std::endl;
 		//return 0;
-		error_message = L"Couldn't resolve address";
+		error_message = wgettext("Couldn't resolve address");
 		//gui_loadingtext->remove();
 		return;
 	}
@@ -771,9 +771,9 @@ void the_game(
 			}
 			
 			std::wostringstream ss;
-			ss<<L"Connecting to server... (timeout in ";
+			ss<<wgettext("Connecting to server... (timeout in ");
 			ss<<(int)(10.0 - time_counter + 1.0);
-			ss<<L" seconds)";
+			ss<<wgettext(" seconds)");
 			draw_load_screen(ss.str(), driver, font);
 
 			/*// Update screen
@@ -800,13 +800,13 @@ void the_game(
 	{
 		if(client.accessDenied())
 		{
-			error_message = L"Access denied. Reason: "
+			error_message = wgettext("Access denied. Reason: ")
 					+client.accessDeniedReason();
 			errorstream<<wide_to_narrow(error_message)<<std::endl;
 		}
 		else
 		{
-			error_message = L"Connection timed out.";
+			error_message = wgettext("Connection timed out.");
 			errorstream<<"Timed out."<<std::endl;
 		}
 		//gui_loadingtext->remove();
@@ -975,7 +975,7 @@ void the_game(
 
 		if(client.accessDenied())
 		{
-			error_message = L"Access denied. Reason: "
+			error_message = wgettext("Access denied. Reason: ")
 					+client.accessDeniedReason();
 			errorstream<<wide_to_narrow(error_message)<<std::endl;
 			break;
@@ -2378,7 +2378,7 @@ void the_game(
 	*/
 	{
 		/*gui::IGUIStaticText *gui_shuttingdowntext = */
-		draw_load_screen(L"Shutting down stuff...", driver, font);
+		draw_load_screen(wgettext("Shutting down stuff..."), driver, font);
 		/*driver->beginScene(true, true, video::SColor(255,0,0,0));
 		guienv->drawAll();
 		driver->endScene();
