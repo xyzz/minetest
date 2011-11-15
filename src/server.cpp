@@ -2022,10 +2022,6 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 			return;
 		}
 
-        // this magic fixes (very dirty-fixes) bug when you are 3 nodes (cubes) down after logout-login
-        v3f position = player->getPosition();
-        position.Y += 3;
-        player->setPosition(position);
 		/*
 			Answer with a TOCLIENT_INIT
 		*/
@@ -4161,7 +4157,7 @@ v3f findSpawnPos(ServerMap &map)
 				-range + (myrand()%(range*2)));
 		//v2s16 sectorpos = getNodeSectorPos(nodepos2d);
 		// Get ground height at point (fallbacks to heightmap function)
-		s16 groundheight = map.findGroundLevel(nodepos2d);
+		s16 groundheight = map.findGroundLevel(nodepos2d) + 1;
 		// Don't go underwater
 		if(groundheight < WATER_LEVEL)
 		{

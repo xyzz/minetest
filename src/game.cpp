@@ -783,14 +783,14 @@ void the_game(
 
 			// Update client and server
 
-			client.step(0.1);
+			client.step(0.0001);
 
 			if(server != NULL)
-				server->step(0.1);
+				server->step(0.0001);
 			
 			// Delay a bit
-			sleep_ms(100);
-			time_counter += 0.1;
+			sleep_ms(1);
+			time_counter += 0.0001;
 		}
 	}
 	catch(con::PeerNotFoundException &e)
