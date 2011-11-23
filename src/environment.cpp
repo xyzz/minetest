@@ -1027,6 +1027,9 @@ void ServerEnvironment::step(float dtime)
 						}
 					}
 				}
+                /*
+                 * TODO: farming
+                 */
 				/*
 					Rats spawn around regular trees
 				*/
