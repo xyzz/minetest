@@ -221,6 +221,37 @@ void mapblock_mesh_generate_special(MeshMakeData *data,
 			g_texturesource->getTextureId("junglegrass.png"));
 	material_junglegrass.setTexture(0, pa_junglegrass.atlas);
 
+	// tallgrass material
+	video::SMaterial material_tallgrass;
+	material_tallgrass.setFlag(video::EMF_LIGHTING, false);
+	material_tallgrass.setFlag(video::EMF_BILINEAR_FILTER, false);
+	material_tallgrass.setFlag(video::EMF_FOG_ENABLE, true);
+	material_tallgrass.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
+	AtlasPointer pa_tallgrass = g_texturesource->getTexture(
+			g_texturesource->getTextureId("tallgrass.png"));
+	material_tallgrass.setTexture(0, pa_tallgrass.atlas);
+
+	// wheatseed material
+	video::SMaterial material_wheatseed;
+	material_wheatseed.setFlag(video::EMF_LIGHTING, false);
+	material_wheatseed.setFlag(video::EMF_BILINEAR_FILTER, false);
+	material_wheatseed.setFlag(video::EMF_FOG_ENABLE, true);
+	material_wheatseed.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
+	AtlasPointer pa_wheatseed = g_texturesource->getTexture(
+			g_texturesource->getTextureId("wheatseed.png"));
+	material_wheatseed.setTexture(0, pa_wheatseed.atlas);
+
+	// wheatseedling material
+	video::SMaterial material_wheatseedling;
+	material_wheatseedling.setFlag(video::EMF_LIGHTING, false);
+	material_wheatseedling.setFlag(video::EMF_BILINEAR_FILTER, false);
+	material_wheatseedling.setFlag(video::EMF_FOG_ENABLE, true);
+	material_wheatseedling.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
+	AtlasPointer pa_wheatseedling = g_texturesource->getTexture(
+			g_texturesource->getTextureId("wheatseedling.png"));
+	material_wheatseedling.setTexture(0, pa_wheatseedling.atlas);
+
+
 	for(s16 z=0; z<MAP_BLOCKSIZE; z++)
 	for(s16 y=0; y<MAP_BLOCKSIZE; y++)
 	for(s16 x=0; x<MAP_BLOCKSIZE; x++)
@@ -1070,6 +1101,156 @@ void mapblock_mesh_generate_special(MeshMakeData *data,
 				u16 indices[] = {0,1,2,2,3,0};
 				// Add to mesh collector
 				collector.append(material_junglegrass, vertices, 4, indices, 6);
+			}
+		}
+		else if(n.getContent() == CONTENT_TALLGRASS)
+		{
+			u8 l = decode_light(undiminish_light(n.getLightBlend(data->m_daynight_ratio)));
+			video::SColor c = MapBlock_LightColor(255, l);
+
+			for(u32 j=0; j<4; j++)
+			{
+				video::S3DVertex vertices[4] =
+				{
+					video::S3DVertex(-BS/2,-BS/2,0, 0,0,0, c,
+						pa_tallgrass.x0(), pa_tallgrass.y1()),
+					video::S3DVertex(BS/2,-BS/2,0, 0,0,0, c,
+						pa_tallgrass.x1(), pa_tallgrass.y1()),
+					video::S3DVertex(BS/2,BS/2,0, 0,0,0, c,
+						pa_tallgrass.x1(), pa_tallgrass.y0()),
+					video::S3DVertex(-BS/2,BS/2,0, 0,0,0, c,
+						pa_tallgrass.x0(), pa_tallgrass.y0()),
+				};
+
+				if(j == 0)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(45);
+				}
+				else if(j == 1)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(-45);
+				}
+				else if(j == 2)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(135);
+				}
+				else if(j == 3)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(-135);
+				}
+
+				for(u16 i=0; i<4; i++)
+				{
+					vertices[i].Pos += intToFloat(p + blockpos_nodes, BS);
+				}
+
+				u16 indices[] = {0,1,2,2,3,0};
+				// Add to mesh collector
+				collector.append(material_tallgrass, vertices, 4, indices, 6);
+			}
+		}
+		else if(n.getContent() == CONTENT_WHEATSEED)
+		{
+			u8 l = decode_light(undiminish_light(n.getLightBlend(data->m_daynight_ratio)));
+			video::SColor c = MapBlock_LightColor(255, l);
+
+			for(u32 j=0; j<4; j++)
+			{
+				video::S3DVertex vertices[4] =
+				{
+					video::S3DVertex(-BS/2,-BS/2,0, 0,0,0, c,
+						pa_wheatseed.x0(), pa_wheatseed.y1()),
+					video::S3DVertex(BS/2,-BS/2,0, 0,0,0, c,
+						pa_wheatseed.x1(), pa_wheatseed.y1()),
+					video::S3DVertex(BS/2,BS/2,0, 0,0,0, c,
+						pa_wheatseed.x1(), pa_wheatseed.y0()),
+					video::S3DVertex(-BS/2,BS/2,0, 0,0,0, c,
+						pa_wheatseed.x0(), pa_wheatseed.y0()),
+				};
+
+				if(j == 0)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(45);
+				}
+				else if(j == 1)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(-45);
+				}
+				else if(j == 2)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(135);
+				}
+				else if(j == 3)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(-135);
+				}
+
+				for(u16 i=0; i<4; i++)
+				{
+					vertices[i].Pos += intToFloat(p + blockpos_nodes, BS);
+				}
+
+				u16 indices[] = {0,1,2,2,3,0};
+				// Add to mesh collector
+				collector.append(material_wheatseed, vertices, 4, indices, 6);
+			}
+		}
+		else if(n.getContent() == CONTENT_WHEATSEEDLING)
+		{
+			u8 l = decode_light(undiminish_light(n.getLightBlend(data->m_daynight_ratio)));
+			video::SColor c = MapBlock_LightColor(255, l);
+
+			for(u32 j=0; j<4; j++)
+			{
+				video::S3DVertex vertices[4] =
+				{
+					video::S3DVertex(-BS/2,-BS/2,0, 0,0,0, c,
+						pa_wheatseedling.x0(), pa_wheatseedling.y1()),
+					video::S3DVertex(BS/2,-BS/2,0, 0,0,0, c,
+						pa_wheatseedling.x1(), pa_wheatseedling.y1()),
+					video::S3DVertex(BS/2,BS/2,0, 0,0,0, c,
+						pa_wheatseedling.x1(), pa_wheatseedling.y0()),
+					video::S3DVertex(-BS/2,BS/2,0, 0,0,0, c,
+						pa_wheatseedling.x0(), pa_wheatseedling.y0()),
+				};
+
+				if(j == 0)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(45);
+				}
+				else if(j == 1)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(-45);
+				}
+				else if(j == 2)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(135);
+				}
+				else if(j == 3)
+				{
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(-135);
+				}
+
+				for(u16 i=0; i<4; i++)
+				{
+					vertices[i].Pos += intToFloat(p + blockpos_nodes, BS);
+				}
+
+				u16 indices[] = {0,1,2,2,3,0};
+				// Add to mesh collector
+				collector.append(material_wheatseedling, vertices, 4, indices, 6);
 			}
 		}
 		else if(n.getContent() == CONTENT_RAIL)

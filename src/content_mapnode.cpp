@@ -231,6 +231,50 @@ void content_mapnode_init()
 	f->walkable = false;
 	setWoodLikeDiggingProperties(f->digging_properties, 0.10);
 
+	i = CONTENT_TALLGRASS;
+	f = &content_features(i);
+	f->setInventoryTexture("tallgrass.png");
+	f->used_texturenames["tallgrass.png"] = true;
+	f->light_propagates = true;
+	f->param_type = CPT_LIGHT;
+	//f->is_ground_content = true;
+	f->air_equivalent = false; // grass grows underneath
+	//f->dug_item = std::string("MaterialItem2 ")+itos(i)+" 0";
+	f->dug_item = std::string("");
+	f->extra_dug_item = std::string("MaterialItem2 ")+itos(CONTENT_WHEATSEED)+" 1";
+	f->extra_dug_item_rarity = 5;
+	f->solidness = 0; // drawn separately, makes no faces
+	f->walkable = false;
+	setWoodLikeDiggingProperties(f->digging_properties, 0);
+
+	i = CONTENT_WHEATSEED;
+	f = &content_features(i);
+	f->setInventoryTexture("wheatseed.png");
+	f->used_texturenames["wheatseed.png"] = true;
+	f->light_propagates = true;
+	f->param_type = CPT_LIGHT;
+	//f->is_ground_content = true;
+	f->air_equivalent = false; // grass grows underneath
+	f->dug_item = std::string("MaterialItem2 ")+itos(i)+" 0";
+	f->solidness = 0; // drawn separately, makes no faces
+	f->walkable = false;
+	setWoodLikeDiggingProperties(f->digging_properties, 0);
+
+	i = CONTENT_WHEATSEEDLING;
+	f = &content_features(i);
+	f->setInventoryTexture("wheatseedling.png");
+	f->used_texturenames["wheatseedling.png"] = true;
+	f->light_propagates = true;
+	f->param_type = CPT_LIGHT;
+	//f->is_ground_content = true;
+	f->air_equivalent = false; // grass grows underneath
+	f->dug_item = std::string("CraftItem wheat 2");
+	f->extra_dug_item = std::string("MaterialItem2 ")+itos(CONTENT_WHEATSEED)+" 3";
+	f->extra_dug_item_rarity = 2;
+	f->solidness = 0; // drawn separately, makes no faces
+	f->walkable = false;
+	setWoodLikeDiggingProperties(f->digging_properties, 0);
+
 	i = CONTENT_LEAVES;
 	f = &content_features(i);
 	f->light_propagates = true;

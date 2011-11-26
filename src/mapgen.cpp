@@ -2161,50 +2161,52 @@ void make_block(BlockMakeData *data)
 		}
 
 		/*
-			Add jungle grass
+			Add jungle grass in jungles and simple grass in non-jungle areas
 		*/
-		if(is_jungle)
+		PseudoRandom grassrandom(blockseed);
+		for(u32 i=0; i<surface_humidity*5*tree_count; i++)
 		{
-			PseudoRandom grassrandom(blockseed);
-			for(u32 i=0; i<surface_humidity*5*tree_count; i++)
+			s16 x = grassrandom.range(node_min.X, node_max.X);
+			s16 z = grassrandom.range(node_min.Z, node_max.Z);
+			s16 y = find_ground_level_from_noise(data->seed, v2s16(x,z), 4);
+			if(y < WATER_LEVEL)
+				continue;
+			if(y < node_min.Y || y > node_max.Y)
+				continue;
+			/*
+				Find exact ground level
+			*/
+			v3s16 p(x,y+6,z);
+			bool found = false;
+			for(; p.Y >= y-6; p.Y--)
 			{
-				s16 x = grassrandom.range(node_min.X, node_max.X);
-				s16 z = grassrandom.range(node_min.Z, node_max.Z);
-				s16 y = find_ground_level_from_noise(data->seed, v2s16(x,z), 4);
-				if(y < WATER_LEVEL)
-					continue;
-				if(y < node_min.Y || y > node_max.Y)
-					continue;
-				/*
-					Find exact ground level
-				*/
-				v3s16 p(x,y+6,z);
-				bool found = false;
-				for(; p.Y >= y-6; p.Y--)
+				u32 i = data->vmanip->m_area.index(p);
+				MapNode *n = &data->vmanip->m_data[i];
+				if(content_features(*n).is_ground_content
+						|| (is_jungle && n->getContent() == CONTENT_JUNGLETREE)
+						|| (!is_jungle && n->getContent() == CONTENT_TREE))
 				{
-					u32 i = data->vmanip->m_area.index(p);
-					MapNode *n = &data->vmanip->m_data[i];
-					if(content_features(*n).is_ground_content
-							|| n->getContent() == CONTENT_JUNGLETREE)
-					{
-						found = true;
-						break;
-					}
+					found = true;
+					break;
 				}
-				// If not found, handle next one
-				if(found == false)
-					continue;
-				p.Y++;
-				if(vmanip.m_area.contains(p) == false)
-					continue;
-				if(vmanip.m_data[vmanip.m_area.index(p)].getContent() != CONTENT_AIR)
-					continue;
-				/*p.Y--;
-				if(vmanip.m_area.contains(p))
-					vmanip.m_data[vmanip.m_area.index(p)] = CONTENT_MUD;
-				p.Y++;*/
-				if(vmanip.m_area.contains(p))
+			}
+			// If not found, handle next one
+			if(found == false)
+				continue;
+			p.Y++;
+			if(vmanip.m_area.contains(p) == false)
+				continue;
+			if(vmanip.m_data[vmanip.m_area.index(p)].getContent() != CONTENT_AIR)
+				continue;
+			/*p.Y--;
+			if(vmanip.m_area.contains(p))
+				vmanip.m_data[vmanip.m_area.index(p)] = CONTENT_MUD;
+			p.Y++;*/
+			if(vmanip.m_area.contains(p)) {
+				if (is_jungle)
 					vmanip.m_data[vmanip.m_area.index(p)] = CONTENT_JUNGLEGRASS;
+				else if (vmanip.getNodeNoExNoEmerge(p+v3s16(0,-1,0)).getContent() == CONTENT_GRASS)
+					vmanip.m_data[vmanip.m_area.index(p)] = CONTENT_TALLGRASS;
 			}
 		}
 

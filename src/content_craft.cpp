@@ -461,6 +461,18 @@ InventoryItem *craft_get_result(InventoryItem **items)
 		}
 	}
 
+	// Bread
+	{
+		ItemSpec specs[9];
+		specs[3] = ItemSpec(ITEM_CRAFT, "wheat");
+		specs[4] = ItemSpec(ITEM_CRAFT, "wheat");
+		specs[5] = ItemSpec(ITEM_CRAFT, "wheat");
+		if(checkItemCombination(items, specs))
+		{
+			return new CraftItem("bread", 1);
+		}
+	}
+
 	return NULL;
 }
 

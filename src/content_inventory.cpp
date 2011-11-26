@@ -75,6 +75,10 @@ std::string item_craft_get_image_name(const std::string &subname)
 		return "apple.png^[forcesingle";
 	else if(subname == "apple_iron")
 		return "apple_iron.png";
+	else if(subname == "wheat")
+		return "wheat.png";
+	else if(subname == "bread")
+		return "bread.png";
 	else
 		return "cloud.png"; // just something
 }
@@ -134,6 +138,8 @@ bool item_craft_is_eatable(const std::string &subname)
 		return true;
 	else if(subname == "apple_iron")
 		return true;
+	else if(subname == "bread")
+		return true;
 	return false;
 }
 
@@ -145,6 +151,8 @@ s16 item_craft_eat_hp_change(const std::string &subname)
 		return 4; // 2 hearts
 	else if(subname == "apple_iron")
 		return 8; // 4 hearts
+	else if(subname == "bread")
+		return 5; // 2.5 hearts
 	return 0;
 }
 

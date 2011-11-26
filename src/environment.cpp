@@ -1027,9 +1027,6 @@ void ServerEnvironment::step(float dtime)
 						}
 					}
 				}
-                /*
-                 * TODO: farming
-                 */
 				/*
 					Rats spawn around regular trees
 				*/
@@ -1135,6 +1132,68 @@ void ServerEnvironment::step(float dtime)
 							event.modified_blocks.insert(p, true);
 						}
 						m_map->dispatchEvent(&event);
+					}
+				}
+				/*
+					Kill unlucky (bad position => no air, no light, bad block down) wheat
+				*/
+				if(n.getContent() == CONTENT_WHEATSEED || n.getContent() == CONTENT_WHEATSEEDLING) {
+					v3s16 p_top = p + v3s16(0, 1, 0);
+					v3s16 p_bottom = p + v3s16(0, -1, 0);
+					MapNode n_top = m_map->getNodeNoEx(p_top);
+					MapNode n_bottom = m_map->getNodeNoEx(p_bottom);
+					bool die = false;
+					if (n_bottom.getContent() != CONTENT_MUD && n_bottom.getContent() != CONTENT_GRASS)
+						die = true;
+					if (!content_features(n_top).air_equivalent || n_top.getLightBlend(getDayNightRatio()) < 10)
+						die = true;
+					if (die) {
+						actionstream << "Wheat dies at " << PP(p) << std::endl;
+						n.setContent(CONTENT_AIR);
+						m_map->addNodeWithEvent(p, n);
+					}
+				}
+				/*
+					Grow wheat
+				*/
+				if(n.getContent() == CONTENT_WHEATSEED)
+				{
+					v3s16 p_bottom = p + v3s16(0, -1, 0);
+					MapNode n_bottom = m_map->getNodeNoEx(p_bottom);
+					bool found = false;
+					if(n_bottom.getContent() == CONTENT_MUD) {
+						// now check for water nearby (3 blocks, Y is same for all them)
+						s16 max_d = 3;
+						for(s16 x = -max_d; x <= max_d; ++x) {
+							for(s16 z = -max_d; z <= max_d; ++z) {
+								v3s16 p_check = p + v3s16(x, -1, z);
+								MapNode n_check = m_map->getNodeNoEx(p_check);
+								if(n_check.getContent() == CONTENT_WATER || n_check.getContent() == CONTENT_WATERSOURCE) {
+									found = true;
+									break;
+								}
+							}
+							if(found)
+								break;
+						}
+						if(found && (myrand() % 50 == 0)) {
+							actionstream << "Wheat grows at " << PP(p) << std::endl;
+							n.setContent(CONTENT_WHEATSEEDLING);
+							m_map->addNodeWithEvent(p, n);
+						} 
+					}
+				}
+				/*
+					Grow tall grass
+				*/
+				if(n.getContent()==CONTENT_GRASS) 
+				{
+					v3s16 p_top = p + v3s16(0, 1, 0);
+					MapNode n_top = m_map->getNodeNoEx(p_top);
+					if((content_features(n_top.getContent()).air_equivalent) && (myrand() % 1500 == 0)) {
+						actionstream << "Grass grows at " << PP(p_top) << std::endl;
+						n_top.setContent(CONTENT_TALLGRASS);
+						m_map->addNodeWithEvent(p_top, n_top);
 					}
 				}
 			}
