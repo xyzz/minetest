@@ -139,6 +139,8 @@ void ServerRemotePlayer::step(float dtime, bool send_recommended)
 		writeU8(os, 0);
 		// pos
 		writeV3F1000(os, getPosition());
+		// pitch
+		writeF1000(os, getPitch());
 		// yaw
 		writeF1000(os, getYaw());
 		// create message and add to list
@@ -156,6 +158,8 @@ std::string ServerRemotePlayer::getClientInitializationData()
 	os<<serializeString(getName());
 	// pos
 	writeV3F1000(os, getPosition());
+	// pitch
+	writeF1000(os, getPitch());
 	// yaw
 	writeF1000(os, getYaw());
 	// dead
