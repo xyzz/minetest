@@ -2610,11 +2610,11 @@ scene::IMeshBuffer *buf = new scene::SMeshBuffer();
 
 		// Add a text node for showing the name
 		std::wstring wname = narrow_to_wide(m_name);
-		m_text = smgr->addTextSceneNode(gui->getBuiltInFont(),
+		irr::gui::IGUIEnvironment* env = irr->getGUIEnvironment();
+
+		m_text = smgr->addTextSceneNode(env->getSkin()->getFont(),
 		wname.c_str(), video::SColor(255,255,255,255), m_head);
-               m_text->setPosition(v3f(0, 0, 5));	
-		m_text->setPosition(v3f(0, (f32)BS*2.1, 0));
-		
+		m_text->setPosition(v3f(0, 0, 5));
 		updateTextures("");
 		updateVisibility();
 		updateNodePos();
