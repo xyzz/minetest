@@ -973,11 +973,20 @@ void the_game(
 	float statustext_time = 0;
 	
 	// Chat text
+	gui::IGUIStaticText *guitext_chat_back = guienv->addStaticText(
+			L"",
+			core::rect<s32>(0,0,0,0),
+			//false, false); // Disable word wrap as of now
+			false, true);
+	guitext_chat_back->setOverrideColor(video::SColor(255,0,0,0));
+
 	gui::IGUIStaticText *guitext_chat = guienv->addStaticText(
 			L"",
 			core::rect<s32>(0,0,0,0),
 			//false, false); // Disable word wrap as of now
 			false, true);
+
+	
 	//guitext_chat->setBackgroundColor(video::SColor(96,0,0,0));
 	core::list<ChatLine> chat_lines;
 	
@@ -2382,6 +2391,7 @@ void the_game(
 				chat_lines.erase(it);
 			}
 			guitext_chat->setText(whole.c_str());
+			guitext_chat_back->setText(whole.c_str());
 
 			// Update gui element size and position
 
@@ -2403,9 +2413,20 @@ void the_game(
 					chat_y + guitext_chat->getTextHeight()
 			);
 
+			core::rect<s32> rect_back(
+					10 + 1,
+					chat_y + 1,
+					screensize.X - 10 + 1,
+					chat_y + guitext_chat->getTextHeight() + 1
+			);
+			
+			guitext_chat_back->setRelativePosition(rect_back);
 			guitext_chat->setRelativePosition(rect);
 
 			// Don't show chat if empty or profiler or debug is enabled
+			guitext_chat_back->setVisible(chat_lines.size() != 0
+					&& show_chat && show_profiler == 0);
+
 			guitext_chat->setVisible(chat_lines.size() != 0
 					&& show_chat && show_profiler == 0);
 		}

@@ -410,6 +410,8 @@ Doing currently:
 #include "log.h"
 #include "mods.h"
 
+#include "xCGUITTFont.h"
+
 /*
 	Settings.
 	These are loaded from the config file.
@@ -1074,10 +1076,15 @@ int main(int argc, char *argv[])
 
 	log_register_thread("main");
 
+	// This enables internatonal characters input
+	if( setlocale(LC_ALL, "") == NULL )
+	{
+		fprintf( stderr, "%s: warning: could not set default locale\n", argv[0] );
+	}
+	
 	// Set locale. This is for forcing '.' as the decimal point.
-	std::locale::global(std::locale("C"));
-	// This enables printing all characters in bitmap font
-	setlocale(LC_CTYPE, "en_US");
+	std::locale::global(std::locale(std::locale(""), "C", std::locale::numeric));
+	setlocale(LC_NUMERIC, "C");
 
 	/*
 		Parse command line
@@ -1419,12 +1426,14 @@ int main(int argc, char *argv[])
 
 	guienv = device->getGUIEnvironment();
 	gui::IGUISkin* skin = guienv->getSkin();
-	gui::IGUIFont* font = guienv->getFont(getTexturePath("fontlucida.png").c_str());
+	std::string font_path = porting::getDataPath("font.ttf");
+	gui::IGUIFont *font = gui::CGUITTFont::createTTFont(guienv, font_path.c_str(), 13);	
 	if(font)
 		skin->setFont(font);
-	else
-		errorstream<<"WARNING: Font file was not found."
-				" Using default font."<<std::endl;
+	else {
+		errorstream << "WARNING: Font file was not found. Using default font." << std::endl;	
+		font = guienv->getFont(getTexturePath("fontlucida.png").c_str());
+	}
 	// If font was not found, this will get us one
 	font = skin->getFont();
 	assert(font);
