@@ -302,8 +302,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, v2u32 screensize)
 	v3f speed = player->getSpeed();
 	if ((hypot(speed.X, speed.Z) > BS) &&
 		(player->touching_ground) &&
-		(g_settings->getBool("view_bobbing") == true) &&
-		(g_settings->getBool("free_move") == false))
+		(g_settings->getBool("view_bobbing") == true))
 	{
 		// Start animation
 		m_view_bobbing_state = 1;

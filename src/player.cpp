@@ -219,7 +219,7 @@ void LocalPlayer::move(f32 dtime, Map &map, f32 pos_max_d,
 	position += m_speed * dtime;
 	
 	// Skip collision detection if a special movement mode is used
-	bool free_move = g_settings->getBool("free_move");
+	bool free_move = false;
 	if(free_move)
 	{
 		setPosition(position);
@@ -632,8 +632,8 @@ void LocalPlayer::applyControl(float dtime)
 	
 	v3f speed = v3f(0,0,0);
 
-	bool free_move = g_settings->getBool("free_move");
-	bool fast_move = g_settings->getBool("fast_move");
+	bool free_move = false;
+	bool fast_move = false;
 	bool continuous_forward = g_settings->getBool("continuous_forward");
 
 	if(free_move || is_climbing)

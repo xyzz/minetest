@@ -4048,7 +4048,7 @@ void ClientMap::renderPostFx()
 	// - If the player is in liquid, draw a semi-transparent overlay.
 	const ContentFeatures& features = nodemgr->get(n);
 	video::SColor post_effect_color = features.post_effect_color;
-	if(features.solidness == 2 && g_settings->getBool("free_move") == false)
+	if(features.solidness == 2)
 	{
 		post_effect_color = video::SColor(255, 0, 0, 0);
 	}

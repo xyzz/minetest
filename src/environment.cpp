@@ -1864,7 +1864,7 @@ void ClientEnvironment::step(float dtime)
 	DSTACK(__FUNCTION_NAME);
 
 	// Get some settings
-	bool free_move = g_settings->getBool("free_move");
+	bool free_move = false; 
 	bool footprints = g_settings->getBool("footprints");
 
 	// Get local player

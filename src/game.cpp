@@ -1382,36 +1382,6 @@ void the_game(
 					&g_menumgr, dest,
 					L"/"))->drop();
 		}
-		else if(input->wasKeyDown(getKeySetting("keymap_freemove")))
-		{
-			if(g_settings->getBool("free_move"))
-			{
-				g_settings->set("free_move","false");
-				statustext = L"free_move disabled";
-				statustext_time = 0;
-			}
-			else
-			{
-				g_settings->set("free_move","true");
-				statustext = L"free_move enabled";
-				statustext_time = 0;
-			}
-		}
-		else if(input->wasKeyDown(getKeySetting("keymap_fastmove")))
-		{
-			if(g_settings->getBool("fast_move"))
-			{
-				g_settings->set("fast_move","false");
-				statustext = L"fast_move disabled";
-				statustext_time = 0;
-			}
-			else
-			{
-				g_settings->set("fast_move","true");
-				statustext = L"fast_move enabled";
-				statustext_time = 0;
-			}
-		}
 		else if(input->wasKeyDown(getKeySetting("keymap_screenshot")))
 		{
 			irr::video::IImage* const image = driver->createScreenShot(); 
