@@ -107,7 +107,7 @@ u64 stringToPrivs(std::string str)
 		else if(s == "password")
 			privs |= PRIV_PASSWORD;
 		// backward-compatibility
-		else if (s == "white") {}
+		else if (s == "whitelist") {}
 		else
 			return PRIV_INVALID;
 	}
