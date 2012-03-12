@@ -106,6 +106,8 @@ u64 stringToPrivs(std::string str)
 			privs |= PRIV_GIVE;
 		else if(s == "password")
 			privs |= PRIV_PASSWORD;
+		// backward-compatibility
+		else if (s == "white") {}
 		else
 			return PRIV_INVALID;
 	}
