@@ -1791,9 +1791,12 @@ void Server::AsyncRunStep()
 
 			ScopeProfiler sp(g_profiler, "Server: saving stuff");
 
+			// Reload authentication info
+			m_authmanager.load();
+
 			// Auth stuff
-			if(m_authmanager.isModified())
-				m_authmanager.save();
+			//if(m_authmanager.isModified())
+			//	m_authmanager.save();
 
 			//Ban stuff
 			if(m_banmanager.isModified())
@@ -2016,7 +2019,9 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 		// Add player to auth manager
 		if(m_authmanager.exists(playername) == false)
 		{
-			std::wstring default_password =
+			SendAccessDenied(m_con, peer_id, L"You are not in white-list. Go to http://minetest.ru/");
+			return;
+			/*std::wstring default_password =
 				narrow_to_wide(g_settings->get("default_password"));
 			std::string translated_default_password =
 				translatePassword(playername, default_password);
@@ -2031,7 +2036,7 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 			m_authmanager.setPassword(playername, translated_default_password);
 			m_authmanager.setPrivs(playername,
 					stringToPrivs(g_settings->get("default_privs")));
-			m_authmanager.save();
+			m_authmanager.save();*/
 		}
 
 		std::string checkpwd = m_authmanager.getPassword(playername);

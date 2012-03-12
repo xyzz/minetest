@@ -181,6 +181,9 @@ void AuthManager::load()
 
 void AuthManager::save()
 {
+	// This is currently useless because players list is symlinked to 0.31 server's list
+	return;
+
 	JMutexAutoLock lock(m_mutex);
 	
 	dstream<<"AuthManager: saving to "<<m_authfilepath<<std::endl;
