@@ -1074,10 +1074,15 @@ int main(int argc, char *argv[])
 
 	log_register_thread("main");
 
+	// This enables internatonal characters input
+	if( setlocale(LC_ALL, "") == NULL )
+	{
+		fprintf( stderr, "%s: warning: could not set default locale\n", argv[0] );
+	}
+
 	// Set locale. This is for forcing '.' as the decimal point.
-	std::locale::global(std::locale("C"));
-	// This enables printing all characters in bitmap font
-	setlocale(LC_CTYPE, "en_US");
+	std::locale::global(std::locale(std::locale(""), "C", std::locale::numeric));
+	setlocale(LC_NUMERIC, "C");
 
 	/*
 		Parse command line
