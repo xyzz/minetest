@@ -63,7 +63,7 @@ enum LiquidType
 enum NodeBoxType
 {
 	NODEBOX_REGULAR, // Regular block; allows buildable_to
-	NODEBOX_FIXED, // Static separately defined box
+	NODEBOX_FIXED, // Static separately defined box(es)
 	NODEBOX_WALLMOUNTED, // Box for wall mounted nodes; (top, bottom, side)
 };
 
@@ -72,22 +72,16 @@ struct NodeBox
 	enum NodeBoxType type;
 	// NODEBOX_REGULAR (no parameters)
 	// NODEBOX_FIXED
-	core::aabbox3d<f32> fixed;
+	std::vector<aabb3f> fixed;
 	// NODEBOX_WALLMOUNTED
-	core::aabbox3d<f32> wall_top;
-	core::aabbox3d<f32> wall_bottom;
-	core::aabbox3d<f32> wall_side; // being at the -X side
+	aabb3f wall_top;
+	aabb3f wall_bottom;
+	aabb3f wall_side; // being at the -X side
 
-	NodeBox():
-		type(NODEBOX_REGULAR),
-		// default is rail-like
-		fixed(-BS/2, -BS/2, -BS/2, BS/2, -BS/2+BS/16., BS/2),
-		// default is sign/ladder-like
-		wall_top(-BS/2, BS/2-BS/16., -BS/2, BS/2, BS/2, BS/2),
-		wall_bottom(-BS/2, -BS/2, -BS/2, BS/2, -BS/2+BS/16., BS/2),
-		wall_side(-BS/2, -BS/2, -BS/2, -BS/2+BS/16., BS/2, BS/2)
-	{}
+	NodeBox()
+	{ reset(); }
 
+	void reset();
 	void serialize(std::ostream &os) const;
 	void deSerialize(std::istream &is);
 };
@@ -123,6 +117,7 @@ enum NodeDrawType
 	NDT_PLANTLIKE,
 	NDT_FENCELIKE,
 	NDT_RAILLIKE,
+	NDT_NODEBOX,
 };
 
 #define CF_SPECIAL_COUNT 2
@@ -194,12 +189,16 @@ struct ContentFeatures
 	// Amount of light the node emits
 	u8 light_source;
 	u32 damage_per_second;
+	NodeBox node_box;
 	NodeBox selection_box;
 	// Compatibility with old maps
 	// Set to true if paramtype used to be 'facedir_simple'
 	bool legacy_facedir_simple;
 	// Set to true if wall_mounted used to be set to true
 	bool legacy_wallmounted;
+	// For selection boxes that are smaller than the node:
+	// Set node_abovesurface to the neighbor instead of the node itself.
+	bool fencelike_building;
 
 	// Sound properties
 	SimpleSoundSpec sound_footstep;
