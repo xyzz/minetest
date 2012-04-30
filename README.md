@@ -93,6 +93,7 @@ Here's an example for Debian/Ubuntu:
 		http://www.winimage.com/zLibDll/index.html
 	* Zlib library (zlibwapi.lib and zlibwapi.dll from zlib125dll.zip):
 		http://www.winimage.com/zLibDll/index.html
+	* Freetype library
 	* Optional: gettext bibrary and tools:
 		http://gnuwin32.sourceforge.net/downlinks/gettext.php
 		- This is used for other UI languages. Feel free to leave it out.
@@ -336,3 +337,54 @@ DejaVu Sans Mono:
   Press Start 2P Font by:
   
   codeman38 http://www.zone38.net/font/
+
+FreeType 2
+---------------
+
+This program uses the FreeType library.
+
+Copyright (c) 2011 The FreeType Project (www.freetype.org).
+FreeType is licensed under the GNU General Public License, version 2 or later.
+
+(Actually, FreeType is dual-licensed, the other license being the BSD-like
+FreeType License with advertisement clause.)
+
+
+ustring and CGUITTFont
+------------------------------
+
+This program uses the ustring and CGUITTFont classes.
+http://irrlicht.sourceforge.net/forum/viewtopic.php?f=6&t=37296
+
+Basic Unicode string class for Irrlicht.
+Copyright (c) 2009-2011 John Norman
+
+CGUITTFont FreeType class for Irrlicht
+Copyright (c) 2009-2010 John Norman
+
+License for ustring and CGUITTFont:
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any
+damages arising from the use of this software.
+
+Permission is granted to anyone to use this software for any
+purpose, including commercial applications, and to alter it and
+redistribute it freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you
+   must not claim that you wrote the original software. If you use
+   this software in a product, an acknowledgment in the product
+   documentation would be appreciated but is not required.
+
+2. Altered source versions must be plainly marked as such, and
+   must not be misrepresented as being the original software.
+
+3. This notice may not be removed or altered from any source
+   distribution.
+
+The original version of this class can be located at:
+http://irrlicht.suckerfreegames.com/
+
+John Norman
+john@suckerfreegames.com
