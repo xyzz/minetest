@@ -1114,6 +1114,13 @@ void the_game(
 	float statustext_time = 0;
 	
 	// Chat text
+	gui::IGUIStaticText *guitext_chat_back = guienv->addStaticText(
+			L"",
+			core::rect<s32>(0,0,0,0),
+			//false, false); // Disable word wrap as of now
+			false, true);
+	guitext_chat_back->setOverrideColor(video::SColor(255,0,0,0));
+
 	gui::IGUIStaticText *guitext_chat = guienv->addStaticText(
 			L"",
 			core::rect<s32>(0,0,0,0),
@@ -2550,6 +2557,7 @@ void the_game(
 			u32 recent_chat_count = chat_backend.getRecentBuffer().getLineCount();
 			std::wstring recent_chat = chat_backend.getRecentChat();
 			guitext_chat->setText(recent_chat.c_str());
+			guitext_chat_back->setText(recent_chat.c_str());
 
 			// Update gui element size and position
 			s32 chat_y = 5+(text_height+5);
@@ -2561,9 +2569,19 @@ void the_game(
 				screensize.X - 10,
 				chat_y + guitext_chat->getTextHeight()
 			);
+			core::rect<s32> rect_back(
+					10 + 1,
+					chat_y + 1,
+					screensize.X - 10 + 1,
+					chat_y + guitext_chat->getTextHeight() + 1
+			);
+
+			guitext_chat_back->setRelativePosition(rect_back);
 			guitext_chat->setRelativePosition(rect);
 
 			// Don't show chat if disabled or empty or profiler is enabled
+			guitext_chat_back->setVisible(show_chat && recent_chat_count != 0
+					&& !show_profiler);
 			guitext_chat->setVisible(show_chat && recent_chat_count != 0
 					&& !show_profiler);
 		}
