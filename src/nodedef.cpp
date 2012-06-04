@@ -598,6 +598,7 @@ public:
 			case NDT_PLANTLIKE:
 			case NDT_FENCELIKE:
 			case NDT_RAILLIKE:
+			case NDT_MESECONLIKE:
 			case NDT_NODEBOX:
 				f->solidness = 0;
 				break;

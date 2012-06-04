@@ -816,6 +816,223 @@ void mapblock_mesh_generate_special(MeshMakeData *data,
 						c, zrailuv);
 			}
 		break;}
+		
+			case NDT_MESECONLIKE:
+			{
+				bool is_mesecon_x [] = { false, false };  /* x-1, x+1 */
+				bool is_mesecon_z [] = { false, false };  /* z-1, z+1 */
+
+				bool is_mesecon_z_minus_y [] = { false, false };  /* z-1, z+1; y-1 */
+				bool is_mesecon_x_minus_y [] = { false, false };  /* x-1, z+1; y-1 */
+				bool is_mesecon_z_plus_y [] = { false, false };  /* z-1, z+1; y+1 */
+				bool is_mesecon_x_plus_y [] = { false, false };  /* x-1, x+1; y+1 */
+
+				MapNode n_minus_x = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x-1,y,z));
+				MapNode n_plus_x = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x+1,y,z));
+				MapNode n_minus_z = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x,y,z-1));
+				MapNode n_plus_z = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x,y,z+1));
+				MapNode n_plus_x_plus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x+1, y+1, z));
+				MapNode n_plus_x_minus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x+1, y-1, z));
+				MapNode n_minus_x_plus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x-1, y+1, z));
+				MapNode n_minus_x_minus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x-1, y-1, z));
+				MapNode n_plus_z_plus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x, y+1, z+1));
+				MapNode n_minus_z_plus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x, y+1, z-1));
+				MapNode n_plus_z_minus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x, y-1, z+1));
+				MapNode n_minus_z_minus_y = data->m_vmanip.getNodeNoEx(blockpos_nodes + v3s16(x, y-1, z-1));
+
+				content_t thiscontent = n.getContent();
+				if(n_minus_x.getContent() == thiscontent)
+					is_mesecon_x[0] = true;
+				if (n_minus_x_minus_y.getContent() == thiscontent)
+					is_mesecon_x_minus_y[0] = true;
+				if(n_minus_x_plus_y.getContent() == thiscontent)
+					is_mesecon_x_plus_y[0] = true;
+
+				if(n_plus_x.getContent() == thiscontent)
+					is_mesecon_x[1] = true;
+				if (n_plus_x_minus_y.getContent() == thiscontent)
+					is_mesecon_x_minus_y[1] = true;
+				if(n_plus_x_plus_y.getContent() == thiscontent)
+					is_mesecon_x_plus_y[1] = true;
+
+				if(n_minus_z.getContent() == thiscontent)
+					is_mesecon_z[0] = true;
+				if (n_minus_z_minus_y.getContent() == thiscontent)
+					is_mesecon_z_minus_y[0] = true;
+				if(n_minus_z_plus_y.getContent() == thiscontent)
+					is_mesecon_z_plus_y[0] = true;
+
+				if(n_plus_z.getContent() == thiscontent)
+					is_mesecon_z[1] = true;
+				if (n_plus_z_minus_y.getContent() == thiscontent)
+					is_mesecon_z_minus_y[1] = true;
+				if(n_plus_z_plus_y.getContent() == thiscontent)
+					is_mesecon_z_plus_y[1] = true;
+
+
+				bool is_mesecon_x_all[] = {false, false};
+				bool is_mesecon_z_all[] = {false, false};
+				is_mesecon_x_all[0]=is_mesecon_x[0] || is_mesecon_x_minus_y[0] || is_mesecon_x_plus_y[0];
+				is_mesecon_x_all[1]=is_mesecon_x[1] || is_mesecon_x_minus_y[1] || is_mesecon_x_plus_y[1];
+				is_mesecon_z_all[0]=is_mesecon_z[0] || is_mesecon_z_minus_y[0] || is_mesecon_z_plus_y[0];
+				is_mesecon_z_all[1]=is_mesecon_z[1] || is_mesecon_z_minus_y[1] || is_mesecon_z_plus_y[1];
+
+				bool is_straight = (is_mesecon_x_all[0] && is_mesecon_x_all[1] && !is_mesecon_z_all[1] && !is_mesecon_z_all[0]) || (is_mesecon_z_all[0] && is_mesecon_z_all[1] && !is_mesecon_x_all[1] && !is_mesecon_x_all[0]);//is really straight, mesecons on both sides
+				int adjacencies = is_mesecon_x_all[0] + is_mesecon_x_all[1] + is_mesecon_z_all[0] + is_mesecon_z_all[1];
+
+
+				// Assign textures
+				u8 tileindex = 0; // straight
+				if(adjacencies < 2)
+					tileindex = 0; // straight
+				else if(adjacencies == 2)
+				{
+					if(is_straight)
+						tileindex = 0; // straight
+					else
+						tileindex = 1; // curved
+				}
+				else if(adjacencies == 3)
+					tileindex = 2; // t-junction
+				else if(adjacencies == 4)
+					tileindex = 3; // crossing
+
+				TileSpec tile = getNodeTileN(n, p, tileindex, data);
+				tile.material_flags &= ~MATERIAL_FLAG_BACKFACE_CULLING;
+				tile.material_flags |= MATERIAL_FLAG_CRACK_OVERLAY;
+
+				TileSpec tile_slope = getNodeTileN(n, p, 0, data);
+				tile.material_flags &= ~MATERIAL_FLAG_BACKFACE_CULLING;
+				tile.material_flags |= MATERIAL_FLAG_CRACK_OVERLAY;
+
+				AtlasPointer ap = tile.texture;
+				AtlasPointer ap_slope = tile_slope.texture;
+
+				u16 l = getInteriorLight(n, 0, data);
+				video::SColor c = MapBlock_LightColor(255, l);
+
+				float d = (float)BS/64;
+
+				u16 indices[] = {0,1,2,2,3,0};
+
+				if (is_mesecon_x_plus_y[0] || is_mesecon_x_plus_y[1] || is_mesecon_z_plus_y[0] || is_mesecon_z_plus_y[1])
+				{
+					video::S3DVertex vertices_slope[4] =
+					{
+						video::S3DVertex(BS/2,BS/2+d,BS/2-d, 0,0,0, c,
+								ap_slope.x1(), ap_slope.y1()),
+						video::S3DVertex(-BS/2,BS/2+d,BS/2-d, 0,0,0, c,
+								ap_slope.x0(), ap_slope.y1()),
+						video::S3DVertex(-BS/2,-BS/2,BS/2-d, 0,0,0, c,
+								ap_slope.x0(), ap_slope.y0()),
+						video::S3DVertex(BS/2,-BS/2,BS/2-d, 0,0,0, c,
+								ap_slope.x1(), ap_slope.y0()),
+					};
+					video::S3DVertex vertices_slope_xplus1[4];
+					video::S3DVertex vertices_slope_xplus0[4];
+					video::S3DVertex vertices_slope_zplus0[4];
+					video::S3DVertex vertices_slope_zplus1[4];
+					for(s32 i=0; i<4; i++)
+					{
+						if (is_mesecon_x_plus_y[1])
+						{
+							vertices_slope_xplus1[i] = vertices_slope[i];
+							vertices_slope_xplus1[i].Pos.rotateXZBy(-90);
+						}
+						if (is_mesecon_x_plus_y[0])
+						{
+							vertices_slope_xplus0[i] = vertices_slope[i];
+							vertices_slope_xplus0[i].Pos.rotateXZBy(90);
+						}
+						if (is_mesecon_z_plus_y[0])
+						{
+							vertices_slope_zplus0[i] = vertices_slope[i];
+							vertices_slope_zplus0[i].Pos.rotateXZBy(180);
+						}
+						if (is_mesecon_z_plus_y[1])
+						{
+							vertices_slope_zplus1[i] = vertices_slope[i];
+							vertices_slope_zplus1[i].Pos.rotateXZBy(0);
+						}
+						vertices_slope_xplus1[i].Pos += intToFloat(p, BS);
+						vertices_slope_xplus0[i].Pos += intToFloat(p, BS);
+						vertices_slope_zplus1[i].Pos += intToFloat(p, BS);
+						vertices_slope_zplus0[i].Pos += intToFloat(p, BS);
+					}
+					if (is_mesecon_x_plus_y[1])
+						collector.append(tile, vertices_slope_xplus1, 4, indices, 6);
+					if (is_mesecon_x_plus_y[0])
+						collector.append(tile, vertices_slope_xplus0, 4, indices, 6);
+					if (is_mesecon_z_plus_y[1])
+						collector.append(tile, vertices_slope_zplus1, 4, indices, 6);
+					if (is_mesecon_z_plus_y[0])
+						collector.append(tile, vertices_slope_zplus0, 4, indices, 6);
+				}
+
+				video::S3DVertex vertices[4] =
+				{
+						video::S3DVertex(-BS/2-d,-BS/2+d,-BS/2-d, 0,0,0, c,
+								ap.x0(), ap.y1()),
+						video::S3DVertex(BS/2+d,-BS/2+d,-BS/2-d, 0,0,0, c,
+								ap.x1(), ap.y1()),
+						video::S3DVertex(BS/2+d,-BS/2+d,BS/2+d, 0,0,0, c,
+								ap.x1(), ap.y0()),
+						video::S3DVertex(-BS/2-d,-BS/2+d,BS/2+d, 0,0,0, c,
+								ap.x0(), ap.y0()),
+				};
+
+				// Rotate textures
+				int angle = 0;
+
+				if(adjacencies == 1)
+				{
+					if(is_mesecon_x_all[0] || is_mesecon_x_all[1])
+						angle = 90;
+				}
+				if(adjacencies == 2)
+				{
+					if(is_mesecon_x_all[0] && is_mesecon_x_all[1])
+					{
+						angle = 90;
+					}
+					if(is_mesecon_z_all[0] && is_mesecon_z_all[1])
+					{
+						if (n_minus_z_plus_y.getContent() == thiscontent) angle = 180;
+					}
+					else if(is_mesecon_x_all[0] && is_mesecon_z_all[0])
+						angle = 270;
+					else if(is_mesecon_x_all[0] && is_mesecon_z_all[1])
+						angle = 180;
+					else if(is_mesecon_x_all[1] && is_mesecon_z_all[1])
+						angle = 90;
+				}
+				if(adjacencies == 3)
+				{
+					if(!is_mesecon_x_all[0])
+						angle=0;
+					if(!is_mesecon_x_all[1])
+						angle=180;
+					if(!is_mesecon_z_all[0])
+						angle=90;
+					if(!is_mesecon_z_all[1])
+						angle=270;
+				}
+
+				if(angle != 0) {
+					for(u16 i=0; i<4; i++)
+						vertices[i].Pos.rotateXZBy(angle);
+				}
+
+				for(s32 i=0; i<4; i++)
+				{
+					vertices[i].Pos += intToFloat(p, BS);
+				}
+
+				collector.append(tile, vertices, 4, indices, 6);
+				break;
+			}
+
+		
 		case NDT_RAILLIKE:
 		{
 			bool is_rail_x [] = { false, false };  /* x-1, x+1 */
