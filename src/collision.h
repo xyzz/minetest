@@ -68,6 +68,17 @@ bool wouldCollideWithCeiling(
 		const aabb3f &movingbox,
 		f32 y_increase, f32 d);
 
+// Moves using a single iteration; speed should not exceed pos_max_d/dtime
+collisionMoveResult collisionMoveSimpleOld(Map *map, IGameDef *gamedef,
+		f32 pos_max_d, const core::aabbox3d<f32> &box_0,
+		f32 dtime, v3f &pos_f, v3f &speed_f);
+
+// Moves using as many iterations as needed
+collisionMoveResult collisionMovePreciseOld(Map *map, IGameDef *gamedef,
+		f32 pos_max_d, const core::aabbox3d<f32> &box_0,
+		f32 dtime, v3f &pos_f, v3f &speed_f);
+
+
 enum CollisionType
 {
 	COLLISION_FALL
