@@ -2194,7 +2194,7 @@ void Client::sendPlayerItem(u16 item)
 
 void Client::removeNode(v3s16 p)
 {
-	core::map<v3s16, MapBlock*> modified_blocks;
+	std::map<v3s16, MapBlock*> modified_blocks;
 
 	try
 	{
@@ -2208,12 +2208,11 @@ void Client::removeNode(v3s16 p)
 	// add urgent task to update the modified node
 	addUpdateMeshTaskForNode(p, false, true);
 
-	for(core::map<v3s16, MapBlock * >::Iterator
-			i = modified_blocks.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock * >::iterator
+			i = modified_blocks.begin();
+			i != modified_blocks.end(); ++i)
 	{
-		v3s16 p = i.getNode()->getKey();
-		addUpdateMeshTaskWithEdge(p);
+		addUpdateMeshTaskWithEdge(i->first);
 	}
 }
 
@@ -2221,7 +2220,7 @@ void Client::addNode(v3s16 p, MapNode n)
 {
 	TimeTaker timer1("Client::addNode()");
 
-	core::map<v3s16, MapBlock*> modified_blocks;
+	std::map<v3s16, MapBlock*> modified_blocks;
 
 	try
 	{
@@ -2231,12 +2230,11 @@ void Client::addNode(v3s16 p, MapNode n)
 	catch(InvalidPositionException &e)
 	{}
 	
-	for(core::map<v3s16, MapBlock * >::Iterator
-			i = modified_blocks.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock * >::iterator
+			i = modified_blocks.begin();
+			i != modified_blocks.end(); ++i)
 	{
-		v3s16 p = i.getNode()->getKey();
-		addUpdateMeshTaskWithEdge(p);
+		addUpdateMeshTaskWithEdge(i->first);
 	}
 }
 	

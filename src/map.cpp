@@ -234,9 +234,9 @@ void Map::setNode(v3s16 p, MapNode & n)
 	values of from_nodes are lighting values.
 */
 void Map::unspreadLight(enum LightBank bank,
-		core::map<v3s16, u8> & from_nodes,
-		core::map<v3s16, bool> & light_sources,
-		core::map<v3s16, MapBlock*>  & modified_blocks)
+		std::map<v3s16, u8> & from_nodes,
+		std::set<v3s16> & light_sources,
+		std::map<v3s16, MapBlock*>  & modified_blocks)
 {
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 
@@ -254,9 +254,7 @@ void Map::unspreadLight(enum LightBank bank,
 	
 	u32 blockchangecount = 0;
 
-	core::map<v3s16, u8> unlighted_nodes;
-	core::map<v3s16, u8>::Iterator j;
-	j = from_nodes.getIterator();
+	std::map<v3s16, u8> unlighted_nodes;
 
 	/*
 		Initialize block cache
@@ -266,9 +264,10 @@ void Map::unspreadLight(enum LightBank bank,
 	// Cache this a bit, too
 	bool block_checked_in_modified = false;
 	
-	for(; j.atEnd() == false; j++)
+	for(std::map<v3s16, u8>::iterator j = from_nodes.begin();
+		j != from_nodes.end(); ++j)
 	{
-		v3s16 pos = j.getNode()->getKey();
+		v3s16 pos = j->first;
 		v3s16 blockpos = getNodeBlockPos(pos);
 		
 		// Only fetch a new block if the block position has changed
@@ -295,7 +294,7 @@ void Map::unspreadLight(enum LightBank bank,
 		// Get node straight from the block
 		MapNode n = block->getNode(relpos);
 
-		u8 oldlight = j.getNode()->getValue();
+		u8 oldlight = j->second;
 
 		// Loop through 6 neighbors
 		for(u16 i=0; i<6; i++)
@@ -352,7 +351,7 @@ void Map::unspreadLight(enum LightBank bank,
 						n2.setLight(bank, 0, nodemgr);
 						block->setNode(relpos, n2);
 
-						unlighted_nodes.insert(n2pos, current_light);
+						unlighted_nodes[n2pos] = current_light;
 						changed = true;
 
 						/*
@@ -371,16 +370,16 @@ void Map::unspreadLight(enum LightBank bank,
 						light_sources.remove(n2pos);*/
 				}
 				else{
-					light_sources.insert(n2pos, true);
+					light_sources.insert(n2pos);
 				}
 
 				// Add to modified_blocks
 				if(changed == true && block_checked_in_modified == false)
 				{
 					// If the block is not found in modified_blocks, add.
-					if(modified_blocks.find(blockpos) == NULL)
+					if(modified_blocks.find(blockpos) == modified_blocks.end())
 					{
-						modified_blocks.insert(blockpos, block);
+						modified_blocks[blockpos] = block;
 					}
 					block_checked_in_modified = true;
 				}
@@ -406,11 +405,11 @@ void Map::unspreadLight(enum LightBank bank,
 */
 void Map::unLightNeighbors(enum LightBank bank,
 		v3s16 pos, u8 lightwas,
-		core::map<v3s16, bool> & light_sources,
-		core::map<v3s16, MapBlock*>  & modified_blocks)
+		std::set<v3s16> & light_sources,
+		std::map<v3s16, MapBlock*>  & modified_blocks)
 {
-	core::map<v3s16, u8> from_nodes;
-	from_nodes.insert(pos, lightwas);
+	std::map<v3s16, u8> from_nodes;
+	from_nodes[pos] = lightwas;
 
 	unspreadLight(bank, from_nodes, light_sources, modified_blocks);
 }
@@ -420,8 +419,8 @@ void Map::unLightNeighbors(enum LightBank bank,
 	goes on recursively.
 */
 void Map::spreadLight(enum LightBank bank,
-		core::map<v3s16, bool> & from_nodes,
-		core::map<v3s16, MapBlock*> & modified_blocks)
+		std::set<v3s16> & from_nodes,
+		std::map<v3s16, MapBlock*> & modified_blocks)
 {
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 
@@ -439,9 +438,7 @@ void Map::spreadLight(enum LightBank bank,
 
 	u32 blockchangecount = 0;
 
-	core::map<v3s16, bool> lighted_nodes;
-	core::map<v3s16, bool>::Iterator j;
-	j = from_nodes.getIterator();
+	std::set<v3s16> lighted_nodes;
 
 	/*
 		Initialize block cache
@@ -451,12 +448,10 @@ void Map::spreadLight(enum LightBank bank,
 	// Cache this a bit, too
 	bool block_checked_in_modified = false;
 
-	for(; j.atEnd() == false; j++)
-	//for(; j != from_nodes.end(); j++)
+	for(std::set<v3s16>::iterator j = from_nodes.begin();
+		j != from_nodes.end(); ++j)
 	{
-		v3s16 pos = j.getNode()->getKey();
-		//v3s16 pos = *j;
-		//infostream<<"pos=("<<pos.X<<","<<pos.Y<<","<<pos.Z<<")"<<std::endl;
+		v3s16 pos = *j;
 		v3s16 blockpos = getNodeBlockPos(pos);
 
 		// Only fetch a new block if the block position has changed
@@ -523,8 +518,7 @@ void Map::spreadLight(enum LightBank bank,
 				*/
 				if(n2.getLight(bank, nodemgr) > undiminish_light(oldlight))
 				{
-					lighted_nodes.insert(n2pos, true);
-					//lighted_nodes.push_back(n2pos);
+					lighted_nodes.insert(n2pos);
 					changed = true;
 				}
 				/*
@@ -537,8 +531,7 @@ void Map::spreadLight(enum LightBank bank,
 					{
 						n2.setLight(bank, newlight, nodemgr);
 						block->setNode(relpos, n2);
-						lighted_nodes.insert(n2pos, true);
-						//lighted_nodes.push_back(n2pos);
+						lighted_nodes.insert(n2pos);
 						changed = true;
 					}
 				}
@@ -547,9 +540,9 @@ void Map::spreadLight(enum LightBank bank,
 				if(changed == true && block_checked_in_modified == false)
 				{
 					// If the block is not found in modified_blocks, add.
-					if(modified_blocks.find(blockpos) == NULL)
+					if(modified_blocks.find(blockpos) == modified_blocks.end())
 					{
-						modified_blocks.insert(blockpos, block);
+						modified_blocks[blockpos] = block;
 					}
 					block_checked_in_modified = true;
 				}
@@ -575,10 +568,10 @@ void Map::spreadLight(enum LightBank bank,
 */
 void Map::lightNeighbors(enum LightBank bank,
 		v3s16 pos,
-		core::map<v3s16, MapBlock*> & modified_blocks)
+		std::map<v3s16, MapBlock*> & modified_blocks)
 {
-	core::map<v3s16, bool> from_nodes;
-	from_nodes.insert(pos, true);
+	std::set<v3s16> from_nodes;
+	from_nodes.insert(pos);
 	spreadLight(bank, from_nodes, modified_blocks);
 }
 
@@ -633,7 +626,7 @@ v3s16 Map::getBrightestNeighbour(enum LightBank bank, v3s16 p)
 	Mud is turned into grass in where the sunlight stops.
 */
 s16 Map::propagateSunlight(v3s16 start,
-		core::map<v3s16, MapBlock*> & modified_blocks)
+		std::map<v3s16, MapBlock*> & modified_blocks)
 {
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 
@@ -660,7 +653,7 @@ s16 Map::propagateSunlight(v3s16 start,
 			n.setLight(LIGHTBANK_DAY, LIGHT_SUN, nodemgr);
 			block->setNode(relpos, n);
 
-			modified_blocks.insert(blockpos, block);
+			modified_blocks[blockpos] = block;
 		}
 		else
 		{
@@ -672,8 +665,8 @@ s16 Map::propagateSunlight(v3s16 start,
 }
 
 void Map::updateLighting(enum LightBank bank,
-		core::map<v3s16, MapBlock*> & a_blocks,
-		core::map<v3s16, MapBlock*> & modified_blocks)
+		std::map<v3s16, MapBlock*> & a_blocks,
+		std::map<v3s16, MapBlock*> & modified_blocks)
 {
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 
@@ -686,22 +679,21 @@ void Map::updateLighting(enum LightBank bank,
 	//bool debug=true;
 	//u32 count_was = modified_blocks.size();
 
-	core::map<v3s16, MapBlock*> blocks_to_update;
+	std::map<v3s16, MapBlock*> blocks_to_update;
 
-	core::map<v3s16, bool> light_sources;
+	std::set<v3s16> light_sources;
 
-	core::map<v3s16, u8> unlight_from;
+	std::map<v3s16, u8> unlight_from;
 
 	int num_bottom_invalid = 0;
 	
 	{
 	//TimeTaker t("first stuff");
 
-	core::map<v3s16, MapBlock*>::Iterator i;
-	i = a_blocks.getIterator();
-	for(; i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator i = a_blocks.begin();
+		i != a_blocks.end(); ++i)
 	{
-		MapBlock *block = i.getNode()->getValue();
+		MapBlock *block = i->second;
 
 		for(;;)
 		{
@@ -711,9 +703,8 @@ void Map::updateLighting(enum LightBank bank,
 
 			v3s16 pos = block->getPos();
 			v3s16 posnodes = block->getPosRelative();
-			modified_blocks.insert(pos, block);
-
-			blocks_to_update.insert(pos, block);
+			modified_blocks[pos] = block;
+			blocks_to_update[pos] = block;
 
 			/*
 				Clear all light from block
@@ -733,7 +724,7 @@ void Map::updateLighting(enum LightBank bank,
 					// If node sources light, add to list
 					u8 source = nodemgr->get(n).light_source;
 					if(source != 0)
-						light_sources[p + posnodes] = true;
+						light_sources.insert(p + posnodes);
 
 					// Collect borders for unlighting
 					if((x==0 || x == MAP_BLOCKSIZE-1
@@ -742,7 +733,7 @@ void Map::updateLighting(enum LightBank bank,
 					&& oldlight != 0)
 					{
 						v3s16 p_map = p + posnodes;
-						unlight_from.insert(p_map, oldlight);
+						unlight_from[p_map] = oldlight;
 					}
 				}
 				catch(InvalidPositionException &e)
@@ -910,8 +901,8 @@ void Map::updateLighting(enum LightBank bank,
 	//m_dout<<"Done ("<<getTimestamp()<<")"<<std::endl;
 }
 
-void Map::updateLighting(core::map<v3s16, MapBlock*> & a_blocks,
-		core::map<v3s16, MapBlock*> & modified_blocks)
+void Map::updateLighting(std::map<v3s16, MapBlock*> & a_blocks,
+		std::map<v3s16, MapBlock*> & modified_blocks)
 {
 	updateLighting(LIGHTBANK_DAY, a_blocks, modified_blocks);
 	updateLighting(LIGHTBANK_NIGHT, a_blocks, modified_blocks);
@@ -919,11 +910,11 @@ void Map::updateLighting(core::map<v3s16, MapBlock*> & a_blocks,
 	/*
 		Update information about whether day and night light differ
 	*/
-	for(core::map<v3s16, MapBlock*>::Iterator
-			i = modified_blocks.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator
+			i = modified_blocks.begin();
+			i != modified_blocks.end(); ++i)
 	{
-		MapBlock *block = i.getNode()->getValue();
+		MapBlock *block = i->second;
 		block->expireDayNightDiff();
 	}
 }
@@ -931,7 +922,7 @@ void Map::updateLighting(core::map<v3s16, MapBlock*> & a_blocks,
 /*
 */
 void Map::addNodeAndUpdate(v3s16 p, MapNode n,
-		core::map<v3s16, MapBlock*> &modified_blocks)
+		std::map<v3s16, MapBlock*> &modified_blocks)
 {
 	INodeDefManager *ndef = m_gamedef->ndef();
 
@@ -950,7 +941,7 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 	v3s16 bottompos = p + v3s16(0,-1,0);
 
 	bool node_under_sunlight = true;
-	core::map<v3s16, bool> light_sources;
+	std::set<v3s16> light_sources;
 	
 	/*
 		Collect old node for rollback
@@ -992,7 +983,7 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 		v3s16 blockpos = getNodeBlockPos(p);
 		MapBlock * block = getBlockNoCreate(blockpos);
 		assert(block != NULL);
-		modified_blocks.insert(blockpos, block);
+		modified_blocks[blockpos] = block;
 
 		assert(isValidPosition(p));
 
@@ -1076,12 +1067,11 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 	/*
 		Update information about whether day and night light differ
 	*/
-	for(core::map<v3s16, MapBlock*>::Iterator
-			i = modified_blocks.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator
+			i = modified_blocks.begin();
+			i != modified_blocks.end(); ++i)
 	{
-		MapBlock *block = i.getNode()->getValue();
-		block->expireDayNightDiff();
+		i->second->expireDayNightDiff();
 	}
 
 	/*
@@ -1130,7 +1120,7 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 /*
 */
 void Map::removeNodeAndUpdate(v3s16 p,
-		core::map<v3s16, MapBlock*> &modified_blocks)
+		std::map<v3s16, MapBlock*> &modified_blocks)
 {
 	INodeDefManager *ndef = m_gamedef->ndef();
 
@@ -1164,7 +1154,7 @@ void Map::removeNodeAndUpdate(v3s16 p,
 	{
 	}
 
-	core::map<v3s16, bool> light_sources;
+	std::set<v3s16> light_sources;
 
 	enum LightBank banks[] =
 	{
@@ -1212,7 +1202,7 @@ void Map::removeNodeAndUpdate(v3s16 p,
 	v3s16 blockpos = getNodeBlockPos(p);
 	MapBlock * block = getBlockNoCreate(blockpos);
 	assert(block != NULL);
-	modified_blocks.insert(blockpos, block);
+	modified_blocks[blockpos] = block;
 
 	/*
 		If the removed node was under sunlight, propagate the
@@ -1268,12 +1258,11 @@ void Map::removeNodeAndUpdate(v3s16 p,
 	/*
 		Update information about whether day and night light differ
 	*/
-	for(core::map<v3s16, MapBlock*>::Iterator
-			i = modified_blocks.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator
+			i = modified_blocks.begin();
+			i != modified_blocks.end(); ++i)
 	{
-		MapBlock *block = i.getNode()->getValue();
-		block->expireDayNightDiff();
+		i->second->expireDayNightDiff();
 	}
 
 	/*
@@ -1328,15 +1317,15 @@ bool Map::addNodeWithEvent(v3s16 p, MapNode n)
 
 	bool succeeded = true;
 	try{
-		core::map<v3s16, MapBlock*> modified_blocks;
+		std::map<v3s16, MapBlock*> modified_blocks;
 		addNodeAndUpdate(p, n, modified_blocks);
 
 		// Copy modified_blocks to event
-		for(core::map<v3s16, MapBlock*>::Iterator
-				i = modified_blocks.getIterator();
-				i.atEnd()==false; i++)
+		for(std::map<v3s16, MapBlock*>::iterator
+				i = modified_blocks.begin();
+				i != modified_blocks.end(); ++i)
 		{
-			event.modified_blocks.insert(i.getNode()->getKey(), false);
+			event.modified_blocks.erase(i->first);
 		}
 	}
 	catch(InvalidPositionException &e){
@@ -1356,15 +1345,15 @@ bool Map::removeNodeWithEvent(v3s16 p)
 
 	bool succeeded = true;
 	try{
-		core::map<v3s16, MapBlock*> modified_blocks;
+		std::map<v3s16, MapBlock*> modified_blocks;
 		removeNodeAndUpdate(p, modified_blocks);
 
 		// Copy modified_blocks to event
-		for(core::map<v3s16, MapBlock*>::Iterator
-				i = modified_blocks.getIterator();
-				i.atEnd()==false; i++)
+		for(std::map<v3s16, MapBlock*>::iterator
+				i = modified_blocks.begin();
+				i != modified_blocks.end(); ++i)
 		{
-			event.modified_blocks.insert(i.getNode()->getKey(), false);
+			event.modified_blocks.erase(i->first);
 		}
 	}
 	catch(InvalidPositionException &e){
@@ -1614,7 +1603,7 @@ struct NodeNeighbor {
 	v3s16 p;
 };
 
-void Map::transformLiquids(core::map<v3s16, MapBlock*> & modified_blocks)
+void Map::transformLiquids(std::map<v3s16, MapBlock*> & modified_blocks)
 {
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 
@@ -1631,7 +1620,7 @@ void Map::transformLiquids(core::map<v3s16, MapBlock*> & modified_blocks)
 	UniqueQueue<v3s16> must_reflow;
 	
 	// List of MapBlocks that will require a lighting update (due to lava)
-	core::map<v3s16, MapBlock*> lighting_modified_blocks;
+	std::map<v3s16, MapBlock*> lighting_modified_blocks;
 
 	while(m_transforming_liquid.size() != 0)
 	{
@@ -1851,7 +1840,7 @@ void Map::transformLiquids(core::map<v3s16, MapBlock*> & modified_blocks)
 		v3s16 blockpos = getNodeBlockPos(p0);
 		MapBlock *block = getBlockNoCreateNoEx(blockpos);
 		if(block != NULL) {
-			modified_blocks.insert(blockpos, block);
+			modified_blocks[blockpos] =  block;
 			// If node emits light, MapBlock requires lighting update
 			if(nodemgr->get(n0).light_source != 0)
 				lighting_modified_blocks[block->getPos()] = block;
@@ -2244,7 +2233,7 @@ void ServerMap::initBlockMake(mapgen::BlockMakeData *data, v3s16 blockpos)
 }
 
 MapBlock* ServerMap::finishBlockMake(mapgen::BlockMakeData *data,
-		core::map<v3s16, MapBlock*> &changed_blocks)
+		std::map<v3s16, MapBlock*> &changed_blocks)
 {
 	v3s16 blockpos_min = data->blockpos_min;
 	v3s16 blockpos_max = data->blockpos_max;
@@ -2357,10 +2346,10 @@ MapBlock* ServerMap::finishBlockMake(mapgen::BlockMakeData *data,
 	/*
 		Go through changed blocks
 	*/
-	for(core::map<v3s16, MapBlock*>::Iterator i = changed_blocks.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator i = changed_blocks.begin();
+			i != changed_blocks.end(); ++i)
 	{
-		MapBlock *block = i.getNode()->getValue();
+		MapBlock *block = i->second;
 		assert(block);
 		/*
 			Update day/night difference cache of the MapBlocks
@@ -2488,7 +2477,7 @@ ServerMapSector * ServerMap::createSector(v2s16 p2d)
 */
 MapBlock * ServerMap::generateBlock(
 		v3s16 p,
-		core::map<v3s16, MapBlock*> &modified_blocks
+		std::map<v3s16, MapBlock*> &modified_blocks
 )
 {
 	DSTACKF("%s: p=(%d,%d,%d)", __FUNCTION_NAME, p.X, p.Y, p.Z);
@@ -2679,7 +2668,7 @@ MapBlock * ServerMap::emergeBlock(v3s16 p, bool allow_generate)
 
 	if(allow_generate)
 	{
-		core::map<v3s16, MapBlock*> modified_blocks;
+		std::map<v3s16, MapBlock*> modified_blocks;
 		MapBlock *block = generateBlock(p, modified_blocks);
 		if(block)
 		{
@@ -2688,11 +2677,11 @@ MapBlock * ServerMap::emergeBlock(v3s16 p, bool allow_generate)
 			event.p = p;
 
 			// Copy modified_blocks to event
-			for(core::map<v3s16, MapBlock*>::Iterator
-					i = modified_blocks.getIterator();
-					i.atEnd()==false; i++)
+			for(std::map<v3s16, MapBlock*>::iterator
+					i = modified_blocks.begin();
+					i != modified_blocks.end(); ++i)
 			{
-				event.modified_blocks.insert(i.getNode()->getKey(), false);
+				event.modified_blocks.erase(i->first);
 			}
 
 			// Queue event
@@ -3838,7 +3827,7 @@ void ManualMapVoxelManipulator::initialEmerge(
 }
 
 void ManualMapVoxelManipulator::blitBackAll(
-		core::map<v3s16, MapBlock*> * modified_blocks)
+		std::map<v3s16, MapBlock*> * modified_blocks)
 {
 	if(m_area.getExtent() == v3s16(0,0,0))
 		return;
@@ -3873,7 +3862,7 @@ void ManualMapVoxelManipulator::blitBackAll(
 		block->copyFrom(*this);
 
 		if(modified_blocks)
-			modified_blocks->insert(p, block);
+			(*modified_blocks)[p] = block;
 	}
 }
 

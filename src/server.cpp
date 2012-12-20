@@ -237,7 +237,7 @@ void * EmergeThread::Thread()
 			
 		MapBlock *block = NULL;
 		bool got_block = true;
-		core::map<v3s16, MapBlock*> modified_blocks;
+		std::map<v3s16, MapBlock*> modified_blocks;
 
 		/*
 			Try to fetch block from memory or disk.
@@ -361,7 +361,7 @@ void * EmergeThread::Thread()
 		*/
 		if(got_block)
 		{
-			modified_blocks.insert(p, block);
+			modified_blocks[p] = block;
 		}
 		
 		/*
@@ -878,15 +878,15 @@ void RemoteClient::SetBlockNotSent(v3s16 p)
 		m_blocks_sent.remove(p);
 }
 
-void RemoteClient::SetBlocksNotSent(core::map<v3s16, MapBlock*> &blocks)
+void RemoteClient::SetBlocksNotSent(std::map<v3s16, MapBlock*> &blocks)
 {
 	m_nearest_unsent_d = 0;
 	
-	for(core::map<v3s16, MapBlock*>::Iterator
-			i = blocks.getIterator();
-			i.atEnd()==false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator
+			i = blocks.begin();
+			i != blocks.end(); ++i)
 	{
-		v3s16 p = i.getNode()->getKey();
+		v3s16 p = i->first;
 
 		if(m_blocks_sending.find(p) != NULL)
 			m_blocks_sending.remove(p);
@@ -1398,7 +1398,7 @@ void Server::AsyncRunStep()
 
 		ScopeProfiler sp(g_profiler, "Server: liquid transform");
 
-		core::map<v3s16, MapBlock*> modified_blocks;
+		std::map<v3s16, MapBlock*> modified_blocks;
 		m_env->getMap().transformLiquids(modified_blocks);
 #if 0		
 		/*
@@ -1802,12 +1802,11 @@ void Server::AsyncRunStep()
 			{
 				infostream<<"Server: MEET_OTHER"<<std::endl;
 				prof.add("MEET_OTHER", 1);
-				for(core::map<v3s16, bool>::Iterator
-						i = event->modified_blocks.getIterator();
-						i.atEnd()==false; i++)
+				for(std::set<v3s16>::iterator
+						i = event->modified_blocks.begin();
+						i != event->modified_blocks.end(); ++i)
 				{
-					v3s16 p = i.getNode()->getKey();
-					setBlockNotSent(p);
+					setBlockNotSent(*i);
 				}
 			}
 			else
@@ -1823,14 +1822,13 @@ void Server::AsyncRunStep()
 			if(far_players.size() > 0)
 			{
 				// Convert list format to that wanted by SetBlocksNotSent
-				core::map<v3s16, MapBlock*> modified_blocks2;
-				for(core::map<v3s16, bool>::Iterator
-						i = event->modified_blocks.getIterator();
-						i.atEnd()==false; i++)
+				std::map<v3s16, MapBlock*> modified_blocks2;
+				for(std::set<v3s16>::iterator
+						i = event->modified_blocks.begin();
+						i != event->modified_blocks.end(); ++i)
 				{
-					v3s16 p = i.getNode()->getKey();
-					modified_blocks2.insert(p,
-							m_env->getMap().getBlockNoCreateNoEx(p));
+					modified_blocks2[*i] =
+							m_env->getMap().getBlockNoCreateNoEx(*i);
 				}
 				// Set blocks not sent
 				for(core::list<u16>::Iterator

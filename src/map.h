@@ -25,6 +25,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <jthread.h>
 #include <iostream>
 #include <sstream>
+#include <set>
+#include <map>
 
 #include "irrlichttypes_bloated.h"
 #include "mapnode.h"
@@ -75,7 +77,7 @@ struct MapEditEvent
 	MapEditEventType type;
 	v3s16 p;
 	MapNode n;
-	core::map<v3s16, bool> modified_blocks;
+	std::set<v3s16> modified_blocks;
 	u16 already_known_by_peer;
 
 	MapEditEvent():
@@ -90,14 +92,7 @@ struct MapEditEvent
 		event->type = type;
 		event->p = p;
 		event->n = n;
-		for(core::map<v3s16, bool>::Iterator
-				i = modified_blocks.getIterator();
-				i.atEnd()==false; i++)
-		{
-			v3s16 p = i.getNode()->getKey();
-			bool v = i.getNode()->getValue();
-			event->modified_blocks.insert(p, v);
-		}
+		event->modified_blocks = modified_blocks;
 		return event;
 	}
 
@@ -117,11 +112,11 @@ struct MapEditEvent
 		case MEET_OTHER:
 		{
 			VoxelArea a;
-			for(core::map<v3s16, bool>::Iterator
-					i = modified_blocks.getIterator();
-					i.atEnd()==false; i++)
+			for(std::set<v3s16>::iterator
+					i = modified_blocks.begin();
+					i != modified_blocks.end(); ++i)
 			{
-				v3s16 p = i.getNode()->getKey();
+				v3s16 p = *i;
 				v3s16 np1 = p*MAP_BLOCKSIZE;
 				v3s16 np2 = np1 + v3s16(1,1,1)*MAP_BLOCKSIZE - v3s16(1,1,1);
 				a.addPoint(np1);
@@ -212,42 +207,42 @@ public:
 	MapNode getNodeNoEx(v3s16 p);
 
 	void unspreadLight(enum LightBank bank,
-			core::map<v3s16, u8> & from_nodes,
-			core::map<v3s16, bool> & light_sources,
-			core::map<v3s16, MapBlock*> & modified_blocks);
+			std::map<v3s16, u8> & from_nodes,
+			std::set<v3s16> & light_sources,
+			std::map<v3s16, MapBlock*> & modified_blocks);
 
 	void unLightNeighbors(enum LightBank bank,
 			v3s16 pos, u8 lightwas,
-			core::map<v3s16, bool> & light_sources,
-			core::map<v3s16, MapBlock*> & modified_blocks);
+			std::set<v3s16> & light_sources,
+			std::map<v3s16, MapBlock*> & modified_blocks);
 	
 	void spreadLight(enum LightBank bank,
-			core::map<v3s16, bool> & from_nodes,
-			core::map<v3s16, MapBlock*> & modified_blocks);
+			std::set<v3s16> & from_nodes,
+			std::map<v3s16, MapBlock*> & modified_blocks);
 	
 	void lightNeighbors(enum LightBank bank,
 			v3s16 pos,
-			core::map<v3s16, MapBlock*> & modified_blocks);
+			std::map<v3s16, MapBlock*> & modified_blocks);
 
 	v3s16 getBrightestNeighbour(enum LightBank bank, v3s16 p);
 
 	s16 propagateSunlight(v3s16 start,
-			core::map<v3s16, MapBlock*> & modified_blocks);
+			std::map<v3s16, MapBlock*> & modified_blocks);
 	
 	void updateLighting(enum LightBank bank,
-			core::map<v3s16, MapBlock*>  & a_blocks,
-			core::map<v3s16, MapBlock*> & modified_blocks);
+			std::map<v3s16, MapBlock*>  & a_blocks,
+			std::map<v3s16, MapBlock*> & modified_blocks);
 			
-	void updateLighting(core::map<v3s16, MapBlock*>  & a_blocks,
-			core::map<v3s16, MapBlock*> & modified_blocks);
+	void updateLighting(std::map<v3s16, MapBlock*>  & a_blocks,
+			std::map<v3s16, MapBlock*> & modified_blocks);
 			
 	/*
 		These handle lighting but not faces.
 	*/
 	void addNodeAndUpdate(v3s16 p, MapNode n,
-			core::map<v3s16, MapBlock*> &modified_blocks);
+			std::map<v3s16, MapBlock*> &modified_blocks);
 	void removeNodeAndUpdate(v3s16 p,
-			core::map<v3s16, MapBlock*> &modified_blocks);
+			std::map<v3s16, MapBlock*> &modified_blocks);
 
 	/*
 		Wrappers for the latter ones.
@@ -301,7 +296,7 @@ public:
 	// For debug printing. Prints "Map: ", "ServerMap: " or "ClientMap: "
 	virtual void PrintInfo(std::ostream &out);
 	
-	void transformLiquids(core::map<v3s16, MapBlock*> & modified_blocks);
+	void transformLiquids(std::map<v3s16, MapBlock*> & modified_blocks);
 
 	/*
 		Node metadata
@@ -381,12 +376,12 @@ public:
 	*/
 	void initBlockMake(mapgen::BlockMakeData *data, v3s16 blockpos);
 	MapBlock* finishBlockMake(mapgen::BlockMakeData *data,
-			core::map<v3s16, MapBlock*> &changed_blocks);
+			std::map<v3s16, MapBlock*> &changed_blocks);
 	
 	// A non-threaded wrapper to the above
 	MapBlock * generateBlock(
 			v3s16 p,
-			core::map<v3s16, MapBlock*> &modified_blocks
+			std::map<v3s16, MapBlock*> &modified_blocks
 	);
 	
 	/*
@@ -548,7 +543,7 @@ public:
 	void initialEmerge(v3s16 blockpos_min, v3s16 blockpos_max);
 	
 	// This is much faster with big chunks of generated data
-	void blitBackAll(core::map<v3s16, MapBlock*> * modified_blocks);
+	void blitBackAll(std::map<v3s16, MapBlock*> * modified_blocks);
 
 protected:
 	bool m_create_area;

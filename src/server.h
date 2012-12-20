@@ -361,7 +361,7 @@ public:
 	void SentBlock(v3s16 p);
 
 	void SetBlockNotSent(v3s16 p);
-	void SetBlocksNotSent(core::map<v3s16, MapBlock*> &blocks);
+	void SetBlocksNotSent(std::map<v3s16, MapBlock*> &blocks);
 
 	s32 SendingCount()
 	{
