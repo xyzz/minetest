@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 static void collectMods(const std::string &modspath,
 		std::queue<ModSpec> &mods_satisfied,
-		core::list<ModSpec> &mods_unsorted,
+		std::list<ModSpec> &mods_unsorted,
 		std::map<std::string, std::string> &mod_names,
 		std::string indentation)
 {
@@ -89,16 +89,16 @@ static void collectMods(const std::string &modspath,
 }
 
 // Get a dependency-sorted list of ModSpecs
-core::list<ModSpec> getMods(core::list<std::string> &modspaths)
+std::list<ModSpec> getMods(std::list<std::string> &modspaths)
 		throw(ModError)
 {
 	std::queue<ModSpec> mods_satisfied;
-	core::list<ModSpec> mods_unsorted;
-	core::list<ModSpec> mods_sorted;
+	std::list<ModSpec> mods_unsorted;
+	std::list<ModSpec> mods_sorted;
 	// name, path: For detecting name conflicts
 	std::map<std::string, std::string> mod_names;
-	for(core::list<std::string>::Iterator i = modspaths.begin();
-			i != modspaths.end(); i++){
+	for(std::list<std::string>::iterator i = modspaths.begin();
+			i != modspaths.end(); ++i){
 		std::string modspath = *i;
 		collectMods(modspath, mods_satisfied, mods_unsorted, mod_names, "");
 	}
@@ -107,8 +107,8 @@ core::list<ModSpec> getMods(core::list<std::string> &modspaths)
 		ModSpec mod = mods_satisfied.front();
 		mods_satisfied.pop();
 		mods_sorted.push_back(mod);
-		for(core::list<ModSpec>::Iterator i = mods_unsorted.begin();
-				i != mods_unsorted.end(); i++){
+		for(std::list<ModSpec>::iterator i = mods_unsorted.begin();
+				i != mods_unsorted.end(); ++i){
 			ModSpec &mod2 = *i;
 			if(mod2.unsatisfied_depends.empty())
 				continue;
@@ -120,8 +120,8 @@ core::list<ModSpec> getMods(core::list<std::string> &modspaths)
 	}
 	std::ostringstream errs(std::ios::binary);
 	// Check unsatisfied dependencies
-	for(core::list<ModSpec>::Iterator i = mods_unsorted.begin();
-			i != mods_unsorted.end(); i++){
+	for(std::list<ModSpec>::iterator i = mods_unsorted.begin();
+			i != mods_unsorted.end(); ++i){
 		ModSpec &mod = *i;
 		if(mod.unsatisfied_depends.empty())
 			continue;
@@ -141,8 +141,8 @@ core::list<ModSpec> getMods(core::list<std::string> &modspaths)
 	}
 	// Print out some debug info
 	TRACESTREAM(<<"Detected mods in load order:"<<std::endl);
-	for(core::list<ModSpec>::Iterator i = mods_sorted.begin();
-			i != mods_sorted.end(); i++){
+	for(std::list<ModSpec>::iterator i = mods_sorted.begin();
+			i != mods_sorted.end(); ++i){
 		ModSpec &mod = *i;
 		TRACESTREAM(<<"name=\""<<mod.name<<"\" path=\""<<mod.path<<"\"");
 		TRACESTREAM(<<" depends=[");

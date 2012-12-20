@@ -3911,10 +3911,10 @@ private:
 		}
 
 		for(int d=1; d<=radius; d++){
-			core::list<v3s16> list;
+			std::list<v3s16> list;
 			getFacePositions(list, d);
-			for(core::list<v3s16>::Iterator i = list.begin();
-					i != list.end(); i++){
+			for(std::list<v3s16>::iterator i = list.begin();
+					i != list.end(); ++i){
 				v3s16 p = pos + (*i);
 				content_t c = env->getMap().getNodeNoEx(p).getContent();
 				if(filter.count(c) != 0){
@@ -4917,24 +4917,24 @@ static int l_get_modpath(lua_State *L)
 static int l_get_modnames(lua_State *L)
 {
 	// Get a list of mods
-	core::list<std::string> mods_unsorted, mods_sorted;
+	std::list<std::string> mods_unsorted, mods_sorted;
 	get_server(L)->getModNames(mods_unsorted);
 
 	// Take unsorted items from mods_unsorted and sort them into
 	// mods_sorted; not great performance but the number of mods on a
 	// server will likely be small.
-	for(core::list<std::string>::Iterator i = mods_unsorted.begin();
-	    i != mods_unsorted.end(); i++)
+	for(std::list<std::string>::iterator i = mods_unsorted.begin();
+	    i != mods_unsorted.end(); ++i)
 	{
 		bool added = false;
-		for(core::list<std::string>::Iterator x = mods_sorted.begin();
-		    x != mods_unsorted.end(); x++)
+		for(std::list<std::string>::iterator x = mods_sorted.begin();
+		    x != mods_unsorted.end(); ++i)
 		{
 			// I doubt anybody using Minetest will be using
 			// anything not ASCII based :)
 			if((*i).compare(*x) <= 0)
 			{
-				mods_sorted.insert_before(x, *i);
+				mods_sorted.insert(x, *i);
 				added = true;
 				break;
 			}
@@ -4951,7 +4951,7 @@ static int l_get_modnames(lua_State *L)
 	// Package them up for Lua
 	lua_newtable(L);
 	int new_table = lua_gettop(L);
-	core::list<std::string>::Iterator i = mods_sorted.begin();
+	std::list<std::string>::iterator i = mods_sorted.begin();
 	while(i != mods_sorted.end())
 	{
 		lua_pushvalue(L, insertion_func);
