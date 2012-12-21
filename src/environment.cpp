@@ -1950,7 +1950,7 @@ void ClientEnvironment::step(float dtime)
 	LocalPlayer *lplayer = getLocalPlayer();
 	assert(lplayer);
 	// collision info queue
-	core::list<CollisionInfo> player_collisions;
+	std::list<CollisionInfo> player_collisions;
 	
 	/*
 		Get the speed the player is going
@@ -2050,9 +2050,9 @@ void ClientEnvironment::step(float dtime)
 		
 	//std::cout<<"Looped "<<loopcount<<" times."<<std::endl;
 	
-	for(core::list<CollisionInfo>::Iterator
+	for(std::list<CollisionInfo>::iterator
 			i = player_collisions.begin();
-			i != player_collisions.end(); i++)
+			i != player_collisions.end(); ++i)
 	{
 		CollisionInfo &info = *i;
 		v3f speed_diff = info.new_speed - info.old_speed;;
