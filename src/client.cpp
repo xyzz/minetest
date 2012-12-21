@@ -2381,10 +2381,10 @@ void Client::printDebugInfo(std::ostream &os)
 		<<std::endl;*/
 }
 
-core::list<std::wstring> Client::getConnectedPlayerNames()
+std::list<std::wstring> Client::getConnectedPlayerNames()
 {
 	core::list<Player*> players = m_env.getPlayers(true);
-	core::list<std::wstring> playerNames;
+	std::list<std::wstring> playerNames;
 	for(core::list<Player*>::Iterator
 			i = players.begin();
 			i != players.end(); i++)

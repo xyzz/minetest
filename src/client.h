@@ -276,7 +276,7 @@ public:
 	// Prints a line or two of info
 	void printDebugInfo(std::ostream &os);
 
-	core::list<std::wstring> getConnectedPlayerNames();
+	std::list<std::wstring> getConnectedPlayerNames();
 
 	float getAnimationTime();
 
