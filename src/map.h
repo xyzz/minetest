@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <sstream>
 #include <set>
 #include <map>
+#include <list>
 
 #include "irrlichttypes_bloated.h"
 #include "mapnode.h"
@@ -181,7 +182,7 @@ public:
 	*/
 	virtual MapSector * emergeSector(v2s16 p){ return NULL; }
 	virtual MapSector * emergeSector(v2s16 p,
-			core::map<v3s16, MapBlock*> &changed_blocks){ return NULL; }
+			std::map<v3s16, MapBlock*> &changed_blocks){ return NULL; }
 
 	// Returns InvalidPositionException if not found
 	MapBlock * getBlockNoCreate(v3s16 p);
@@ -276,12 +277,12 @@ public:
 		Saves modified blocks before unloading on MAPTYPE_SERVER.
 	*/
 	void timerUpdate(float dtime, float unload_timeout,
-			core::list<v3s16> *unloaded_blocks=NULL);
+			std::list<v3s16> *unloaded_blocks=NULL);
 		
 	// Deletes sectors and their blocks from memory
 	// Takes cache into account
 	// If deleted sector is in sector cache, clears cache
-	void deleteSectors(core::list<v2s16> &list);
+	void deleteSectors(std::list<v2s16> &list);
 
 #if 0
 	/*
@@ -319,7 +320,7 @@ public:
 	/*
 		Misc.
 	*/
-	core::map<v2s16, MapSector*> *getSectorsPtr(){return &m_sectors;}
+	std::map<v2s16, MapSector*> *getSectorsPtr(){return &m_sectors;}
 
 	/*
 		Variables
@@ -331,9 +332,9 @@ protected:
 
 	IGameDef *m_gamedef;
 
-	core::map<MapEventReceiver*, bool> m_event_receivers;
+	std::set<MapEventReceiver*> m_event_receivers;
 
-	core::map<v2s16, MapSector*> m_sectors;
+	std::map<v2s16, MapSector*> m_sectors;
 
 	// Be sure to set this to NULL when the cached sector is deleted 
 	MapSector *m_sector_cache;
@@ -435,7 +436,7 @@ public:
 	void save(ModifiedState save_level);
 	//void loadAll();
 	
-	void listAllLoadableBlocks(core::list<v3s16> &dst);
+	void listAllLoadableBlocks(std::list<v3s16> &dst);
 	
 	// Saves map seed and possibly other stuff
 	void saveMapMeta();
@@ -518,7 +519,7 @@ public:
 
 	virtual void emerge(VoxelArea a, s32 caller_id=-1);
 
-	void blitBack(core::map<v3s16, MapBlock*> & modified_blocks);
+	void blitBack(std::map<v3s16, MapBlock*> & modified_blocks);
 
 protected:
 	Map *m_map;
@@ -526,7 +527,7 @@ protected:
 		key = blockpos
 		value = block existed when loaded
 	*/
-	core::map<v3s16, bool> m_loaded_blocks;
+	std::set<v3s16> m_loaded_blocks;
 };
 
 class ManualMapVoxelManipulator : public MapVoxelManipulator

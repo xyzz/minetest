@@ -885,7 +885,7 @@ void ServerEnvironment::clearAllObjects()
 		m_active_objects.remove(*i);
 	}
 
-	core::list<v3s16> loadable_blocks;
+	std::list<v3s16> loadable_blocks;
 	infostream<<"ServerEnvironment::clearAllObjects(): "
 			<<"Listing all loadable blocks"<<std::endl;
 	m_map->listAllLoadableBlocks(loadable_blocks);
@@ -897,8 +897,8 @@ void ServerEnvironment::clearAllObjects()
 	u32 num_blocks_checked = 0;
 	u32 num_blocks_cleared = 0;
 	u32 num_objs_cleared = 0;
-	for(core::list<v3s16>::Iterator i = loadable_blocks.begin();
-			i != loadable_blocks.end(); i++)
+	for(std::list<v3s16>::iterator i = loadable_blocks.begin();
+			i != loadable_blocks.end(); ++i)
 	{
 		v3s16 p = *i;
 		MapBlock *block = m_map->emergeBlock(p, false);

@@ -71,34 +71,30 @@ Map::~Map()
 	/*
 		Free all MapSectors
 	*/
-	core::map<v2s16, MapSector*>::Iterator i = m_sectors.getIterator();
-	for(; i.atEnd() == false; i++)
+	for(std::map<v2s16, MapSector*>::iterator i = m_sectors.begin();
+		i != m_sectors.end(); ++i)
 	{
-		MapSector *sector = i.getNode()->getValue();
-		delete sector;
+		delete i->second;
 	}
 }
 
 void Map::addEventReceiver(MapEventReceiver *event_receiver)
 {
-	m_event_receivers.insert(event_receiver, false);
+	m_event_receivers.insert(event_receiver);
 }
 
 void Map::removeEventReceiver(MapEventReceiver *event_receiver)
 {
-	if(m_event_receivers.find(event_receiver) == NULL)
-		return;
-	m_event_receivers.remove(event_receiver);
+	m_event_receivers.erase(event_receiver);
 }
 
 void Map::dispatchEvent(MapEditEvent *event)
 {
-	for(core::map<MapEventReceiver*, bool>::Iterator
-			i = m_event_receivers.getIterator();
-			i.atEnd()==false; i++)
+	for(std::set<MapEventReceiver*>::iterator
+			i = m_event_receivers.begin();
+			i != m_event_receivers.end(); ++i)
 	{
-		MapEventReceiver* event_receiver = i.getNode()->getKey();
-		event_receiver->onMapEditEvent(event);
+		(*i)->onMapEditEvent(event);
 	}
 }
 
@@ -109,12 +105,12 @@ MapSector * Map::getSectorNoGenerateNoExNoLock(v2s16 p)
 		return sector;
 	}
 	
-	core::map<v2s16, MapSector*>::Node *n = m_sectors.find(p);
+	std::map<v2s16, MapSector*>::iterator n = m_sectors.find(p);
 	
-	if(n == NULL)
+	if(n == m_sectors.end())
 		return NULL;
 	
-	MapSector *sector = n->getValue();
+	MapSector *sector = n->second;
 	
 	// Cache the last result
 	m_sector_cache_p = p;
@@ -1426,33 +1422,31 @@ bool Map::getDayNightDiff(v3s16 blockpos)
 	Updates usage timers
 */
 void Map::timerUpdate(float dtime, float unload_timeout,
-		core::list<v3s16> *unloaded_blocks)
+		std::list<v3s16> *unloaded_blocks)
 {
 	bool save_before_unloading = (mapType() == MAPTYPE_SERVER);
 	
 	// Profile modified reasons
 	Profiler modprofiler;
 	
-	core::list<v2s16> sector_deletion_queue;
+	std::list<v2s16> sector_deletion_queue;
 	u32 deleted_blocks_count = 0;
 	u32 saved_blocks_count = 0;
 	u32 block_count_all = 0;
 
-	core::map<v2s16, MapSector*>::Iterator si;
-
 	beginSave();
-	si = m_sectors.getIterator();
-	for(; si.atEnd() == false; si++)
+	for(std::map<v2s16, MapSector*>::iterator si = m_sectors.begin();
+		si != m_sectors.end(); ++si)
 	{
-		MapSector *sector = si.getNode()->getValue();
+		MapSector *sector = si->second;
 
 		bool all_blocks_deleted = true;
 
-		core::list<MapBlock*> blocks;
+		std::list<MapBlock*> blocks;
 		sector->getBlocks(blocks);
 		
-		for(core::list<MapBlock*>::Iterator i = blocks.begin();
-				i != blocks.end(); i++)
+		for(std::list<MapBlock*>::iterator i = blocks.begin();
+				i != blocks.end(); ++i)
 		{
 			MapBlock *block = (*i);
 			
@@ -1488,7 +1482,7 @@ void Map::timerUpdate(float dtime, float unload_timeout,
 
 		if(all_blocks_deleted)
 		{
-			sector_deletion_queue.push_back(si.getNode()->getKey());
+			sector_deletion_queue.push_back(si->first);
 		}
 	}
 	endSave();
@@ -1513,17 +1507,17 @@ void Map::timerUpdate(float dtime, float unload_timeout,
 	}
 }
 
-void Map::deleteSectors(core::list<v2s16> &list)
+void Map::deleteSectors(std::list<v2s16> &list)
 {
-	core::list<v2s16>::Iterator j;
-	for(j=list.begin(); j!=list.end(); j++)
+	for(std::list<v2s16>::iterator j = list.begin();
+		j != list.end(); ++j)
 	{
 		MapSector *sector = m_sectors[*j];
 		// If sector is in sector cache, remove it from there
 		if(m_sector_cache == sector)
 			m_sector_cache = NULL;
 		// Remove from map and delete
-		m_sectors.remove(*j);
+		m_sectors.erase(*j);
 		delete sector;
 	}
 }
@@ -2467,7 +2461,7 @@ ServerMapSector * ServerMap::createSector(v2s16 p2d)
 	/*
 		Insert to container
 	*/
-	m_sectors.insert(p2d, sector);
+	m_sectors[p2d] = sector;
 	
 	return sector;
 }
@@ -2922,10 +2916,10 @@ void ServerMap::save(ModifiedState save_level)
 	// Don't do anything with sqlite unless something is really saved
 	bool save_started = false;
 
-	core::map<v2s16, MapSector*>::Iterator i = m_sectors.getIterator();
-	for(; i.atEnd() == false; i++)
+	for(std::map<v2s16, MapSector*>::iterator i = m_sectors.begin();
+		i != m_sectors.end(); ++i)
 	{
-		ServerMapSector *sector = (ServerMapSector*)i.getNode()->getValue();
+		ServerMapSector *sector = (ServerMapSector*)i->second;
 		assert(sector->getId() == MAPSECTOR_SERVER);
 	
 		if(sector->differs_from_disk || save_level == MOD_STATE_CLEAN)
@@ -2933,11 +2927,11 @@ void ServerMap::save(ModifiedState save_level)
 			saveSectorMeta(sector);
 			sector_meta_count++;
 		}
-		core::list<MapBlock*> blocks;
+		std::list<MapBlock*> blocks;
 		sector->getBlocks(blocks);
-		core::list<MapBlock*>::Iterator j;
 		
-		for(j=blocks.begin(); j!=blocks.end(); j++)
+		for(std::list<MapBlock*>::iterator j = blocks.begin();
+			j != blocks.end(); ++j)
 		{
 			MapBlock *block = *j;
 			
@@ -3010,7 +3004,7 @@ v3s16 ServerMap::getIntegerAsBlock(sqlite3_int64 i)
 	return v3s16(x,y,z);
 }
 
-void ServerMap::listAllLoadableBlocks(core::list<v3s16> &dst)
+void ServerMap::listAllLoadableBlocks(std::list<v3s16> &dst)
 {
 	if(loadFromFolders()){
 		errorstream<<"Map::listAllLoadableBlocks(): Result will be missing "
@@ -3136,7 +3130,7 @@ MapSector* ServerMap::loadSectorMeta(std::string sectordir, bool save_after_load
 					<<" Continuing with a sector with no metadata."
 					<<std::endl;*/
 			sector = new ServerMapSector(this, p2d, m_gamedef);
-			m_sectors.insert(p2d, sector);
+			m_sectors[p2d] = sector;
 		}
 		else
 		{
@@ -3626,9 +3620,9 @@ void MapVoxelManipulator::emerge(VoxelArea a, s32 caller_id)
 	for(s32 x=p_min.X; x<=p_max.X; x++)
 	{
 		v3s16 p(x,y,z);
-		core::map<v3s16, bool>::Node *n;
+		std::set<v3s16>::iterator n;
 		n = m_loaded_blocks.find(p);
-		if(n != NULL)
+		if(n != m_loaded_blocks.end())
 			continue;
 		
 		bool block_data_inexistent = false;
@@ -3665,7 +3659,8 @@ void MapVoxelManipulator::emerge(VoxelArea a, s32 caller_id)
 			}
 		}
 
-		m_loaded_blocks.insert(p, !block_data_inexistent);
+		if (!block_data_inexistent)
+			m_loaded_blocks.insert(p);
 	}
 
 	//infostream<<"emerge done"<<std::endl;
@@ -3677,7 +3672,7 @@ void MapVoxelManipulator::emerge(VoxelArea a, s32 caller_id)
 		  run on background.
 */
 void MapVoxelManipulator::blitBack
-		(core::map<v3s16, MapBlock*> & modified_blocks)
+		(std::map<v3s16, MapBlock*> & modified_blocks)
 {
 	if(m_area.getExtent() == v3s16(0,0,0))
 		return;
@@ -3786,9 +3781,9 @@ void ManualMapVoxelManipulator::initialEmerge(
 	for(s32 x=p_min.X; x<=p_max.X; x++)
 	{
 		v3s16 p(x,y,z);
-		core::map<v3s16, bool>::Node *n;
+		std::set<v3s16>::iterator n;
 		n = m_loaded_blocks.find(p);
-		if(n != NULL)
+		if(n != m_loaded_blocks.end())
 			continue;
 		
 		bool block_data_inexistent = false;
@@ -3822,7 +3817,8 @@ void ManualMapVoxelManipulator::initialEmerge(
 			}
 		}
 
-		m_loaded_blocks.insert(p, !block_data_inexistent);
+		if (!block_data_inexistent)
+			m_loaded_blocks.insert(p);
 	}
 }
 
@@ -3835,20 +3831,11 @@ void ManualMapVoxelManipulator::blitBackAll(
 	/*
 		Copy data of all blocks
 	*/
-	for(core::map<v3s16, bool>::Iterator
-			i = m_loaded_blocks.getIterator();
-			i.atEnd() == false; i++)
+	for(std::set<v3s16>::iterator
+			i = m_loaded_blocks.begin();
+			i != m_loaded_blocks.end(); ++i)
 	{
-		v3s16 p = i.getNode()->getKey();
-		bool existed = i.getNode()->getValue();
-		if(existed == false)
-		{
-			// The Great Bug was found using this
-			/*infostream<<"ManualMapVoxelManipulator::blitBackAll: "
-					<<"Inexistent ("<<p.X<<","<<p.Y<<","<<p.Z<<")"
-					<<std::endl;*/
-			continue;
-		}
+		v3s16 p = *i;
 		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
 		if(block == NULL)
 		{

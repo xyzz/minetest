@@ -136,7 +136,7 @@ void MapSector::deleteBlock(MapBlock *block)
 	delete block;
 }
 
-void MapSector::getBlocks(core::list<MapBlock*> &dest)
+void MapSector::getBlocks(std::list<MapBlock*> &dest)
 {
 	core::list<MapBlock*> ref_list;
 
@@ -189,7 +189,7 @@ ServerMapSector* ServerMapSector::deSerialize(
 		std::istream &is,
 		Map *parent,
 		v2s16 p2d,
-		core::map<v2s16, MapSector*> & sectors,
+		std::map<v2s16, MapSector*> & sectors,
 		IGameDef *gamedef
 	)
 {
@@ -219,22 +219,22 @@ ServerMapSector* ServerMapSector::deSerialize(
 
 	ServerMapSector *sector = NULL;
 
-	core::map<v2s16, MapSector*>::Node *n = sectors.find(p2d);
+	std::map<v2s16, MapSector*>::iterator n = sectors.find(p2d);
 
-	if(n != NULL)
+	if(n != sectors.end())
 	{
 		dstream<<"WARNING: deSerializing existent sectors not supported "
 				"at the moment, because code hasn't been tested."
 				<<std::endl;
 
-		MapSector *sector = n->getValue();
+		MapSector *sector = n->second;
 		assert(sector->getId() == MAPSECTOR_SERVER);
 		return (ServerMapSector*)sector;
 	}
 	else
 	{
 		sector = new ServerMapSector(parent, p2d, gamedef);
-		sectors.insert(p2d, sector);
+		sectors[p2d] = sector;
 	}
 
 	/*

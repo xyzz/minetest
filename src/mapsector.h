@@ -24,6 +24,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrlichttypes_bloated.h"
 #include "exceptions.h"
 #include <ostream>
+#include <map>
+#include <list>
 
 class MapBlock;
 class Map;
@@ -60,7 +62,7 @@ public:
 	
 	void deleteBlock(MapBlock *block);
 	
-	void getBlocks(core::list<MapBlock*> &dest);
+	void getBlocks(std::list<MapBlock*> &dest);
 	
 	// Always false at the moment, because sector contains no metadata.
 	bool differs_from_disk;
@@ -110,7 +112,7 @@ public:
 			std::istream &is,
 			Map *parent,
 			v2s16 p2d,
-			core::map<v2s16, MapSector*> & sectors,
+			std::map<v2s16, MapSector*> & sectors,
 			IGameDef *gamedef
 		);
 		

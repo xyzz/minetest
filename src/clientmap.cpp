@@ -83,7 +83,7 @@ MapSector * ClientMap::emergeSector(v2s16 p2d)
 	
 	{
 		//JMutexAutoLock lock(m_sector_mutex); // Bulk comment-out
-		m_sectors.insert(p2d, sector);
+		m_sectors[p2d] = sector;
 	}
 	
 	return sector;
@@ -215,11 +215,11 @@ void ClientMap::updateDrawList(video::IVideoDriver* driver)
 	// Blocks from which stuff was actually drawn
 	//u32 blocks_without_stuff = 0;
 
-	for(core::map<v2s16, MapSector*>::Iterator
-			si = m_sectors.getIterator();
-			si.atEnd() == false; si++)
+	for(std::map<v2s16, MapSector*>::iterator
+			si = m_sectors.begin();
+			si != m_sectors.end(); ++si)
 	{
-		MapSector *sector = si.getNode()->getValue();
+		MapSector *sector = si->second;
 		v2s16 sp = sector->getPos();
 		
 		if(m_control.range_all == false)
@@ -231,7 +231,7 @@ void ClientMap::updateDrawList(video::IVideoDriver* driver)
 				continue;
 		}
 
-		core::list< MapBlock * > sectorblocks;
+		std::list< MapBlock * > sectorblocks;
 		sector->getBlocks(sectorblocks);
 		
 		/*
@@ -240,7 +240,7 @@ void ClientMap::updateDrawList(video::IVideoDriver* driver)
 
 		u32 sector_blocks_drawn = 0;
 		
-		core::list< MapBlock * >::Iterator i;
+		std::list< MapBlock * >::iterator i;
 		for(i=sectorblocks.begin(); i!=sectorblocks.end(); i++)
 		{
 			MapBlock *block = *i;
