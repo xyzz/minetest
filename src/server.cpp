@@ -988,8 +988,8 @@ Server::Server(
 		m_modspaths.push_front((*i));
 
 	// Print out mod search paths
-	for(core::list<std::string>::Iterator i = m_modspaths.begin();
-			i != m_modspaths.end(); i++){
+	for(std::list<std::string>::iterator i = m_modspaths.begin();
+			i != m_modspaths.end(); ++i){
 		std::string modspath = *i;
 		infostream<<"- mods:   "<<modspath<<std::endl;
 	}
@@ -1025,15 +1025,15 @@ Server::Server(
 	m_mods = getMods(m_modspaths);
 	// Print 'em
 	infostream<<"Server: Loading mods: ";
-	for(core::list<ModSpec>::Iterator i = m_mods.begin();
-			i != m_mods.end(); i++){
+	for(std::list<ModSpec>::iterator i = m_mods.begin();
+			i != m_mods.end(); ++i){
 		const ModSpec &mod = *i;
 		infostream<<mod.name<<" ";
 	}
 	infostream<<std::endl;
 	// Load and run "mod" scripts
-	for(core::list<ModSpec>::Iterator i = m_mods.begin();
-			i != m_mods.end(); i++){
+	for(std::list<ModSpec>::iterator i = m_mods.begin();
+			i != m_mods.end(); ++i){
 		const ModSpec &mod = *i;
 		std::string scriptpath = mod.path + DIR_DELIM + "init.lua";
 		infostream<<"  ["<<padStringRight(mod.name, 12)<<"] [\""
@@ -4078,8 +4078,8 @@ void Server::fillMediaCache()
 	
 	// Collect all media file paths
 	std::list<std::string> paths;
-	for(core::list<ModSpec>::Iterator i = m_mods.begin();
-			i != m_mods.end(); i++){
+	for(std::list<ModSpec>::iterator i = m_mods.begin();
+			i != m_mods.end(); ++i){
 		const ModSpec &mod = *i;
 		paths.push_back(mod.path + DIR_DELIM + "textures");
 		paths.push_back(mod.path + DIR_DELIM + "sounds");
@@ -4729,8 +4729,8 @@ IWritableCraftDefManager* Server::getWritableCraftDefManager()
 
 const ModSpec* Server::getModSpec(const std::string &modname)
 {
-	for(core::list<ModSpec>::Iterator i = m_mods.begin();
-			i != m_mods.end(); i++){
+	for(std::list<ModSpec>::iterator i = m_mods.begin();
+			i != m_mods.end(); ++i){
 		const ModSpec &mod = *i;
 		if(mod.name == modname)
 			return &mod;
@@ -4739,7 +4739,7 @@ const ModSpec* Server::getModSpec(const std::string &modname)
 }
 void Server::getModNames(core::list<std::string> &modlist)
 {
-	for(core::list<ModSpec>::Iterator i = m_mods.begin(); i != m_mods.end(); i++)
+	for(std::list<ModSpec>::iterator i = m_mods.begin(); i != m_mods.end(); ++i)
 	{
 		modlist.push_back((*i).name);
 	}

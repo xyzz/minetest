@@ -25,6 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <set>
 #include <string>
 #include <exception>
+#include <list>
 
 class ModError : public std::exception
 {
@@ -60,7 +61,7 @@ struct ModSpec
 };
 
 // Get a dependency-sorted list of ModSpecs
-core::list<ModSpec> getMods(core::list<std::string> &modspaths)
+std::list<ModSpec> getMods(std::list<std::string> &modspaths)
 		throw(ModError);
 
 #endif

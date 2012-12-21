@@ -754,7 +754,7 @@ private:
 	EventManager *m_event;
 	
 	// Mods
-	core::list<ModSpec> m_mods;
+	std::list<ModSpec> m_mods;
 	
 	/*
 		Threads
@@ -804,7 +804,7 @@ private:
 	*/
 	
 	// Mod parent directory paths
-	core::list<std::string> m_modspaths;
+	std::list<std::string> m_modspaths;
 
 	bool m_shutdown_requested;
 
