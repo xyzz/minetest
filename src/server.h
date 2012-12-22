@@ -78,7 +78,7 @@ struct QueuedBlockEmerge
 {
 	v3s16 pos;
 	// key = peer_id, value = flags
-	core::map<u16, u8> peer_ids;
+	std::map<u16, u8> peer_ids;
 };
 
 /*
@@ -96,8 +96,8 @@ public:
 	{
 		JMutexAutoLock lock(m_mutex);
 
-		core::list<QueuedBlockEmerge*>::Iterator i;
-		for(i=m_queue.begin(); i!=m_queue.end(); i++)
+		std::list<QueuedBlockEmerge*>::iterator i;
+		for(i=m_queue.begin(); i!=m_queue.end(); ++i)
 		{
 			QueuedBlockEmerge *q = *i;
 			delete q;
@@ -119,8 +119,8 @@ public:
 				Find if block is already in queue.
 				If it is, update the peer to it and quit.
 			*/
-			core::list<QueuedBlockEmerge*>::Iterator i;
-			for(i=m_queue.begin(); i!=m_queue.end(); i++)
+			std::list<QueuedBlockEmerge*>::iterator i;
+			for(i=m_queue.begin(); i!=m_queue.end(); ++i)
 			{
 				QueuedBlockEmerge *q = *i;
 				if(q->pos == pos)
@@ -147,7 +147,7 @@ public:
 	{
 		JMutexAutoLock lock(m_mutex);
 
-		core::list<QueuedBlockEmerge*>::Iterator i = m_queue.begin();
+		std::list<QueuedBlockEmerge*>::iterator i = m_queue.begin();
 		if(i == m_queue.end())
 			return NULL;
 		QueuedBlockEmerge *q = *i;
@@ -167,11 +167,11 @@ public:
 
 		u32 count = 0;
 
-		core::list<QueuedBlockEmerge*>::Iterator i;
-		for(i=m_queue.begin(); i!=m_queue.end(); i++)
+		std::list<QueuedBlockEmerge*>::iterator i;
+		for(i=m_queue.begin(); i!=m_queue.end(); ++i)
 		{
 			QueuedBlockEmerge *q = *i;
-			if(q->peer_ids.find(peer_id) != NULL)
+			if(q->peer_ids.find(peer_id) != q->peer_ids.end())
 				count++;
 		}
 
@@ -179,7 +179,7 @@ public:
 	}
 
 private:
-	core::list<QueuedBlockEmerge*> m_queue;
+	std::list<QueuedBlockEmerge*> m_queue;
 	JMutex m_mutex;
 };
 

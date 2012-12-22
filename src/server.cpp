@@ -215,13 +215,13 @@ void * EmergeThread::Thread()
 		bool only_from_disk = true;
 
 		{
-			core::map<u16, u8>::Iterator i;
-			for(i=q->peer_ids.getIterator(); i.atEnd()==false; i++)
+			for(std::map<u16, u8>::iterator i=q->peer_ids.begin(); 
+                                i != q->peer_ids.end(); ++i)
 			{
 				//u16 peer_id = i.getNode()->getKey();
 
 				// Check flags
-				u8 flags = i.getNode()->getValue();
+				u8 flags = i->second;
 				if((flags & BLOCK_EMERGE_FLAG_FROMDISK) == false)
 					only_from_disk = false;
 				
