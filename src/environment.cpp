@@ -58,8 +58,8 @@ Environment::Environment():
 Environment::~Environment()
 {
 	// Deallocate players
-	for(core::list<Player*>::Iterator i = m_players.begin();
-			i != m_players.end(); i++)
+	for(std::list<Player*>::iterator i = m_players.begin();
+			i != m_players.end(); ++i)
 	{
 		delete (*i);
 	}
@@ -86,8 +86,8 @@ void Environment::removePlayer(u16 peer_id)
 {
 	DSTACK(__FUNCTION_NAME);
 re_search:
-	for(core::list<Player*>::Iterator i = m_players.begin();
-			i != m_players.end(); i++)
+	for(std::list<Player*>::iterator i = m_players.begin();
+			i != m_players.end(); ++i)
 	{
 		Player *player = *i;
 		if(player->peer_id != peer_id)
@@ -103,8 +103,8 @@ re_search:
 
 Player * Environment::getPlayer(u16 peer_id)
 {
-	for(core::list<Player*>::Iterator i = m_players.begin();
-			i != m_players.end(); i++)
+	for(std::list<Player*>::iterator i = m_players.begin();
+			i != m_players.end(); ++i)
 	{
 		Player *player = *i;
 		if(player->peer_id == peer_id)
@@ -115,8 +115,8 @@ Player * Environment::getPlayer(u16 peer_id)
 
 Player * Environment::getPlayer(const char *name)
 {
-	for(core::list<Player*>::Iterator i = m_players.begin();
-			i != m_players.end(); i++)
+	for(std::list<Player*>::iterator i = m_players.begin();
+			i != m_players.end(); ++i)
 	{
 		Player *player = *i;
 		if(strcmp(player->getName(), name) == 0)
@@ -127,12 +127,12 @@ Player * Environment::getPlayer(const char *name)
 
 Player * Environment::getRandomConnectedPlayer()
 {
-	core::list<Player*> connected_players = getPlayers(true);
+	std::list<Player*> connected_players = getPlayers(true);
 	u32 chosen_one = myrand() % connected_players.size();
 	u32 j = 0;
-	for(core::list<Player*>::Iterator
+	for(std::list<Player*>::iterator
 			i = connected_players.begin();
-			i != connected_players.end(); i++)
+			i != connected_players.end(); ++i)
 	{
 		if(j == chosen_one)
 		{
@@ -146,12 +146,12 @@ Player * Environment::getRandomConnectedPlayer()
 
 Player * Environment::getNearestConnectedPlayer(v3f pos)
 {
-	core::list<Player*> connected_players = getPlayers(true);
+	std::list<Player*> connected_players = getPlayers(true);
 	f32 nearest_d = 0;
 	Player *nearest_player = NULL;
-	for(core::list<Player*>::Iterator
+	for(std::list<Player*>::iterator
 			i = connected_players.begin();
-			i != connected_players.end(); i++)
+			i != connected_players.end(); ++i)
 	{
 		Player *player = *i;
 		f32 d = player->getPosition().getDistanceFrom(pos);
@@ -164,17 +164,17 @@ Player * Environment::getNearestConnectedPlayer(v3f pos)
 	return nearest_player;
 }
 
-core::list<Player*> Environment::getPlayers()
+std::list<Player*> Environment::getPlayers()
 {
 	return m_players;
 }
 
-core::list<Player*> Environment::getPlayers(bool ignore_disconnected)
+std::list<Player*> Environment::getPlayers(bool ignore_disconnected)
 {
-	core::list<Player*> newlist;
-	for(core::list<Player*>::Iterator
+	std::list<Player*> newlist;
+	for(std::list<Player*>::iterator
 			i = m_players.begin();
-			i != m_players.end(); i++)
+			i != m_players.end(); ++i)
 	{
 		Player *player = *i;
 		
@@ -193,7 +193,7 @@ core::list<Player*> Environment::getPlayers(bool ignore_disconnected)
 void Environment::printPlayers(std::ostream &o)
 {
 	o<<"Players in environment:"<<std::endl;
-	for(core::list<Player*>::Iterator i = m_players.begin();
+	for(std::list<Player*>::iterator i = m_players.begin();
 			i != m_players.end(); i++)
 	{
 		Player *player = *i;
@@ -423,8 +423,8 @@ void ServerEnvironment::serializePlayers(const std::string &savedir)
 		}
 	}
 
-	for(core::list<Player*>::Iterator i = m_players.begin();
-			i != m_players.end(); i++)
+	for(std::list<Player*>::iterator i = m_players.begin();
+			i != m_players.end(); ++i)
 	{
 		Player *player = *i;
 		if(saved_players.find(player) != NULL)
@@ -962,8 +962,8 @@ void ServerEnvironment::step(float dtime)
 	*/
 	{
 		ScopeProfiler sp(g_profiler, "SEnv: handle players avg", SPT_AVG);
-		for(core::list<Player*>::Iterator i = m_players.begin();
-				i != m_players.end(); i++)
+		for(std::list<Player*>::iterator i = m_players.begin();
+				i != m_players.end(); ++i)
 		{
 			Player *player = *i;
 			
@@ -988,9 +988,9 @@ void ServerEnvironment::step(float dtime)
 			Get player block positions
 		*/
 		core::list<v3s16> players_blockpos;
-		for(core::list<Player*>::Iterator
+		for(std::list<Player*>::iterator
 				i = m_players.begin();
-				i != m_players.end(); i++)
+				i != m_players.end(); ++i)
 		{
 			Player *player = *i;
 			// Ignore disconnected players
@@ -1309,8 +1309,8 @@ bool ServerEnvironment::addActiveObjectAsStatic(ServerActiveObject *obj)
 	inside a radius around a position
 */
 void ServerEnvironment::getAddedActiveObjects(v3s16 pos, s16 radius,
-		core::map<u16, bool> &current_objects,
-		core::map<u16, bool> &added_objects)
+		std::set<u16> &current_objects,
+		std::set<u16> &added_objects)
 {
 	v3f pos_f = intToFloat(pos, BS);
 	f32 radius_f = radius * BS;
@@ -1340,12 +1340,12 @@ void ServerEnvironment::getAddedActiveObjects(v3s16 pos, s16 radius,
 				continue;
 		}
 		// Discard if already on current_objects
-		core::map<u16, bool>::Node *n;
+		std::set<u16>::iterator n;
 		n = current_objects.find(id);
-		if(n != NULL)
+		if(n != current_objects.end())
 			continue;
 		// Add to added_objects
-		added_objects.insert(id, false);
+		added_objects.insert(id);
 	}
 }
 
@@ -1354,8 +1354,8 @@ void ServerEnvironment::getAddedActiveObjects(v3s16 pos, s16 radius,
 	inside a radius around a position
 */
 void ServerEnvironment::getRemovedActiveObjects(v3s16 pos, s16 radius,
-		core::map<u16, bool> &current_objects,
-		core::map<u16, bool> &removed_objects)
+		std::set<u16> &current_objects,
+		std::set<u16> &removed_objects)
 {
 	v3f pos_f = intToFloat(pos, BS);
 	f32 radius_f = radius * BS;
@@ -1367,23 +1367,23 @@ void ServerEnvironment::getRemovedActiveObjects(v3s16 pos, s16 radius,
 		- object has m_removed=true, or
 		- object is too far away
 	*/
-	for(core::map<u16, bool>::Iterator
-			i = current_objects.getIterator();
-			i.atEnd()==false; i++)
+	for(std::set<u16>::iterator
+			i = current_objects.begin();
+			i != current_objects.end(); ++i)
 	{
-		u16 id = i.getNode()->getKey();
+		u16 id = *i;
 		ServerActiveObject *object = getActiveObject(id);
 
 		if(object == NULL){
 			infostream<<"ServerEnvironment::getRemovedActiveObjects():"
 					<<" object in current_objects is NULL"<<std::endl;
-			removed_objects.insert(id, false);
+			removed_objects.insert(id);
 			continue;
 		}
 
 		if(object->m_removed)
 		{
-			removed_objects.insert(id, false);
+			removed_objects.insert(id);
 			continue;
 		}
 		
@@ -1395,7 +1395,7 @@ void ServerEnvironment::getRemovedActiveObjects(v3s16 pos, s16 radius,
 
 		if(distance_f >= radius_f)
 		{
-			removed_objects.insert(id, false);
+			removed_objects.insert(id);
 			continue;
 		}
 		
@@ -1925,8 +1925,8 @@ void ClientEnvironment::addPlayer(Player *player)
 
 LocalPlayer * ClientEnvironment::getLocalPlayer()
 {
-	for(core::list<Player*>::Iterator i = m_players.begin();
-			i != m_players.end(); i++)
+	for(std::list<Player*>::iterator i = m_players.begin();
+			i != m_players.end(); ++i)
 	{
 		Player *player = *i;
 		if(player->isLocal())
@@ -2116,8 +2116,8 @@ void ClientEnvironment::step(float dtime)
 	/*
 		Stuff that can be done in an arbitarily large dtime
 	*/
-	for(core::list<Player*>::Iterator i = m_players.begin();
-			i != m_players.end(); i++)
+	for(std::list<Player*>::iterator i = m_players.begin();
+			i != m_players.end(); ++i)
 	{
 		Player *player = *i;
 		v3f playerpos = player->getPosition();

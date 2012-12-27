@@ -31,6 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 #include <set>
+#include <list>
 #include "irrlichttypes_extrabloated.h"
 #include "player.h"
 #include <ostream>
@@ -74,8 +75,8 @@ public:
 	Player * getPlayer(const char *name);
 	Player * getRandomConnectedPlayer();
 	Player * getNearestConnectedPlayer(v3f pos);
-	core::list<Player*> getPlayers();
-	core::list<Player*> getPlayers(bool ignore_disconnected);
+	std::list<Player*> getPlayers();
+	std::list<Player*> getPlayers(bool ignore_disconnected);
 	void printPlayers(std::ostream &o);
 	
 	u32 getDayNightRatio();
@@ -103,7 +104,7 @@ public:
 
 protected:
 	// peer_ids in here should be unique, except that there may be many 0s
-	core::list<Player*> m_players;
+	std::list<Player*> m_players;
 	// Time of day in milli-hours (0-23999); determines day and night
 	u32 m_time_of_day;
 	// Time of day in 0...1
@@ -249,16 +250,16 @@ public:
 		inside a radius around a position
 	*/
 	void getAddedActiveObjects(v3s16 pos, s16 radius,
-			core::map<u16, bool> &current_objects,
-			core::map<u16, bool> &added_objects);
+			std::set<u16> &current_objects,
+			std::set<u16> &added_objects);
 
 	/*
 		Find out what new objects have been removed from
 		inside a radius around a position
 	*/
 	void getRemovedActiveObjects(v3s16 pos, s16 radius,
-			core::map<u16, bool> &current_objects,
-			core::map<u16, bool> &removed_objects);
+			std::set<u16> &current_objects,
+			std::set<u16> &removed_objects);
 	
 	/*
 		Get the next message emitted by some active object.
