@@ -275,7 +275,7 @@ typedef std::list<BufferedPacket>::iterator RPBSearchResult;
 class ReliablePacketBuffer
 {
 public:
-	
+	ReliablePacketBuffer();
 	void print();
 	bool empty();
 	u32 size();

@@ -170,6 +170,8 @@ SharedBuffer<u8> makeReliablePacket(
 	ReliablePacketBuffer
 */
 
+ReliablePacketBuffer::ReliablePacketBuffer(): m_list_size(0) {}
+
 void ReliablePacketBuffer::print()
 {
 	for(std::list<BufferedPacket>::iterator i = m_list.begin();
