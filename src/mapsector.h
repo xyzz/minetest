@@ -70,7 +70,7 @@ public:
 protected:
 	
 	// The pile of MapBlocks
-	core::map<s16, MapBlock*> m_blocks;
+	std::map<s16, MapBlock*> m_blocks;
 
 	Map *m_parent;
 	// Position on parent (in MapBlock widths)
