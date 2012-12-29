@@ -1124,8 +1124,8 @@ MapBlockMesh::MapBlockMesh(MeshMakeData *data):
 		m_mesh->addMeshBuffer(buf);
 		// Mesh grabbed it
 		buf->drop();
-		buf->append(p.vertices.pointer(), p.vertices.size(),
-				p.indices.pointer(), p.indices.size());
+		buf->append(&p.vertices[0], p.vertices.size(),
+				&p.indices[0], p.indices.size());
 	}
 
 	/*

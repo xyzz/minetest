@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "debug.h"
 #include "mapnode.h"
 #include <set>
+#include <list>
 
 class INodeDefManager;
 
@@ -187,7 +188,7 @@ public:
 
 		a: area inside *this
 	*/
-	void diff(const VoxelArea &a, core::list<VoxelArea> &result)
+	void diff(const VoxelArea &a, std::list<VoxelArea> &result)
 	{
 		/*
 			This can result in a maximum of 6 areas

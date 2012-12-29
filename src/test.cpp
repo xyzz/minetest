@@ -42,6 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/serialize.h"
 #include "noise.h" // PseudoRandom used for random data for compression
 #include "clientserver.h" // LATEST_PROTOCOL_VERSION
+#include <algorithm>
 
 /*
 	Asserts that the exception occurs
@@ -508,26 +509,26 @@ struct TestVoxelManipulator: public TestBase
 		// An area that is 1 bigger in x+ and z-
 		VoxelArea d(v3s16(-2,-2,-3), v3s16(3,2,2));
 		
-		core::list<VoxelArea> aa;
+		std::list<VoxelArea> aa;
 		d.diff(c, aa);
 		
 		// Correct results
-		core::array<VoxelArea> results;
+		std::vector<VoxelArea> results;
 		results.push_back(VoxelArea(v3s16(-2,-2,-3),v3s16(3,2,-3)));
 		results.push_back(VoxelArea(v3s16(3,-2,-2),v3s16(3,2,2)));
 
 		UASSERT(aa.size() == results.size());
 		
 		infostream<<"Result of diff:"<<std::endl;
-		for(core::list<VoxelArea>::Iterator
-				i = aa.begin(); i != aa.end(); i++)
+		for(std::list<VoxelArea>::const_iterator
+				i = aa.begin(); i != aa.end(); ++i)
 		{
 			i->print(infostream);
 			infostream<<std::endl;
 			
-			s32 j = results.linear_search(*i);
-			UASSERT(j != -1);
-			results.erase(j, 1);
+			std::vector<VoxelArea>::iterator j = std::find(results.begin(), results.end(), *i);
+			UASSERT(j != results.end());
+			results.erase(j);
 		}
 
 
