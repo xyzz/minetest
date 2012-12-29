@@ -158,20 +158,20 @@ struct ABMWithState
 class ActiveBlockList
 {
 public:
-	void update(core::list<v3s16> &active_positions,
+	void update(std::list<v3s16> &active_positions,
 			s16 radius,
-			core::map<v3s16, bool> &blocks_removed,
-			core::map<v3s16, bool> &blocks_added);
+			std::set<v3s16> &blocks_removed,
+			std::set<v3s16> &blocks_added);
 
 	bool contains(v3s16 p){
-		return (m_list.find(p) != NULL);
+		return (m_list.find(p) != m_list.end());
 	}
 
 	void clear(){
 		m_list.clear();
 	}
 
-	core::map<v3s16, bool> m_list;
+	std::set<v3s16> m_list;
 
 private:
 };
@@ -347,7 +347,7 @@ private:
 	// Background block emerger (the server, in practice)
 	IBackgroundBlockEmerger *m_emerger;
 	// Active object list
-	core::map<u16, ServerActiveObject*> m_active_objects;
+	std::map<u16, ServerActiveObject*> m_active_objects;
 	// Outgoing network message buffer for active objects
 	Queue<ActiveObjectMessage> m_active_object_messages;
 	// Some timers
@@ -365,7 +365,7 @@ private:
 	u32 m_game_time;
 	// A helper variable for incrementing the latter
 	float m_game_time_fraction_counter;
-	core::list<ABMWithState> m_abms;
+	std::list<ABMWithState> m_abms;
 	// An interval for generally sending object positions and stuff
 	float m_recommended_send_interval;
 };
@@ -460,7 +460,7 @@ public:
 	
 	// Get all nearby objects
 	void getActiveObjects(v3f origin, f32 max_d,
-			core::array<DistanceSortedActiveObject> &dest);
+			std::vector<DistanceSortedActiveObject> &dest);
 	
 	// Get event from queue. CEE_NONE is returned if queue is empty.
 	ClientEnvEvent getClientEvent();
@@ -473,8 +473,8 @@ private:
 	ITextureSource *m_texturesource;
 	IGameDef *m_gamedef;
 	IrrlichtDevice *m_irr;
-	core::map<u16, ClientActiveObject*> m_active_objects;
-	core::list<ClientSimpleObject*> m_simple_objects;
+	std::map<u16, ClientActiveObject*> m_active_objects;
+	std::list<ClientSimpleObject*> m_simple_objects;
 	Queue<ClientEnvEvent> m_client_event_queue;
 	IntervalLimiter m_active_object_light_update_interval;
 	IntervalLimiter m_lava_hurt_interval;

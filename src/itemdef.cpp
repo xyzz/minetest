@@ -211,8 +211,8 @@ public:
 	virtual ~CItemDefManager()
 	{
 #ifndef SERVER
-		const core::list<ClientCached*> &values = m_clientcached.getValues();
-		for(core::list<ClientCached*>::ConstIterator
+		const std::list<ClientCached*> &values = m_clientcached.getValues();
+		for(std::list<ClientCached*>::const_iterator
 				i = values.begin(); i != values.end(); ++i)
 		{
 			ClientCached *cc = *i;

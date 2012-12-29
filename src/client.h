@@ -35,6 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "localplayer.h"
 #include "server.h"
 #include "util/pointedthing.h"
+#include <algorithm>
 
 struct MeshMakeData;
 class MapBlockMesh;
@@ -141,9 +142,9 @@ public:
 
 	void * Thread();
 
-	core::list<MediaRequest> m_file_requests;
+	std::list<MediaRequest> m_file_requests;
 	MutexedQueue<std::pair<std::string, std::string> > m_file_data;
-	core::list<MediaRequest> m_failed;
+	std::list<MediaRequest> m_failed;
 	std::string m_remote_url;
 	IGameDef *m_gamedef;
 };
@@ -341,7 +342,7 @@ private:
 	// Insert a media file appropriately into the appropriate manager
 	bool loadMedia(const std::string &data, const std::string &filename);
 
-	void request_media(const core::list<MediaRequest> &file_requests);
+	void request_media(const std::list<MediaRequest> &file_requests);
 
 	// Virtual methods from con::PeerHandler
 	void peerAdded(con::Peer *peer);
@@ -371,7 +372,7 @@ private:
 	MtEventManager *m_event;
 
 	MeshUpdateThread m_mesh_update_thread;
-	core::list<MediaFetchThread*> m_media_fetch_threads;
+	std::list<MediaFetchThread*> m_media_fetch_threads;
 	ClientEnvironment m_env;
 	con::Connection m_con;
 	IrrlichtDevice *m_device;
@@ -381,7 +382,7 @@ private:
 	bool m_inventory_updated;
 	Inventory *m_inventory_from_server;
 	float m_inventory_from_server_age;
-	core::map<v3s16, bool> m_active_blocks;
+	std::set<v3s16> m_active_blocks;
 	PacketCounter m_packetcounter;
 	// Block mesh animation parameters
 	float m_animation_time;
@@ -399,7 +400,7 @@ private:
 	Queue<ClientEvent> m_client_event_queue;
 	FileCache m_media_cache;
 	// Mapping from media file name to SHA1 checksum
-	core::map<std::string, std::string> m_media_name_sha1_map;
+	std::map<std::string, std::string> m_media_name_sha1_map;
 	bool m_media_receive_started;
 	u32 m_media_count;
 	u32 m_media_received_count;

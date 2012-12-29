@@ -110,7 +110,7 @@ struct DistanceSortedActiveObject
 		d = a_d;
 	}
 
-	bool operator < (DistanceSortedActiveObject &other)
+	bool operator < (const DistanceSortedActiveObject &other) const
 	{
 		return d < other.d;
 	}

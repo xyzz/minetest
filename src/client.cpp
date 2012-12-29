@@ -232,8 +232,8 @@ void * MediaFetchThread::Thread()
 	#if USE_CURL
 	CURL *curl;
 	CURLcode res;
-	for (core::list<MediaRequest>::Iterator i = m_file_requests.begin();
-			i != m_file_requests.end(); i++) {
+	for (std::list<MediaRequest>::iterator i = m_file_requests.begin();
+			i != m_file_requests.end(); ++i) {
 		curl = curl_easy_init();
 		assert(curl);
 		curl_easy_setopt(curl, CURLOPT_URL, (m_remote_url + i->name).c_str());
@@ -359,8 +359,8 @@ Client::~Client()
 		}
 	}
 
-	for (core::list<MediaFetchThread*>::Iterator i = m_media_fetch_threads.begin();
-			i != m_media_fetch_threads.end(); i++)
+	for (std::list<MediaFetchThread*>::iterator i = m_media_fetch_threads.begin();
+			i != m_media_fetch_threads.end(); ++i)
 		delete *i;
 }
 
@@ -599,7 +599,7 @@ void Client::step(float dtime)
 		*/
 
 		std::list<v3s16>::iterator i = deleted_blocks.begin();
-		core::list<v3s16> sendlist;
+		std::list<v3s16> sendlist;
 		for(;;)
 		{
 			if(sendlist.size() == 255 || i == deleted_blocks.end())
@@ -618,9 +618,9 @@ void Client::step(float dtime)
 				writeU16(&reply[0], TOSERVER_DELETEDBLOCKS);
 				reply[2] = sendlist.size();
 				u32 k = 0;
-				for(core::list<v3s16>::Iterator
+				for(std::list<v3s16>::iterator
 						j = sendlist.begin();
-						j != sendlist.end(); j++)
+						j != sendlist.end(); ++j)
 				{
 					writeV3S16(&reply[2+1+6*k], *j);
 					k++;
@@ -778,8 +778,8 @@ void Client::step(float dtime)
 	*/
 	if (m_media_receive_started) {
 		bool all_stopped = true;
-		for (core::list<MediaFetchThread*>::Iterator thread = m_media_fetch_threads.begin();
-				thread != m_media_fetch_threads.end(); thread++) {
+		for (std::list<MediaFetchThread*>::iterator thread = m_media_fetch_threads.begin();
+				thread != m_media_fetch_threads.end(); ++thread) {
 			all_stopped &= !(*thread)->IsRunning();
 			while ((*thread)->m_file_data.size() > 0) {
 				std::pair <std::string, std::string> out = (*thread)->m_file_data.pop_front();
@@ -802,9 +802,9 @@ void Client::step(float dtime)
 				}
 
 				{
-					core::map<std::string, std::string>::Node *n;
+					std::map<std::string, std::string>::iterator n;
 					n = m_media_name_sha1_map.find(out.first);
-					if(n == NULL)
+					if(n == m_media_name_sha1_map.end())
 						errorstream<<"The server sent a file that has not "
 								<<"been announced."<<std::endl;
 					else
@@ -813,11 +813,11 @@ void Client::step(float dtime)
 			}
 		}
 		if (all_stopped) {
-			core::list<MediaRequest> fetch_failed;
-			for (core::list<MediaFetchThread*>::Iterator thread = m_media_fetch_threads.begin();
-					thread != m_media_fetch_threads.end(); thread++) {
-				for (core::list<MediaRequest>::Iterator request = (*thread)->m_failed.begin();
-						request != (*thread)->m_failed.end(); request++)
+			std::list<MediaRequest> fetch_failed;
+			for (std::list<MediaFetchThread*>::iterator thread = m_media_fetch_threads.begin();
+					thread != m_media_fetch_threads.end(); ++thread) {
+				for (std::list<MediaRequest>::iterator request = (*thread)->m_failed.begin();
+						request != (*thread)->m_failed.end(); ++request)
 					fetch_failed.push_back(*request);
 				(*thread)->m_failed.clear();
 			}
@@ -1014,14 +1014,14 @@ void Client::deletingPeer(con::Peer *peer, bool timeout)
 		string name
 	}
 */
-void Client::request_media(const core::list<MediaRequest> &file_requests)
+void Client::request_media(const std::list<MediaRequest> &file_requests)
 {
 	std::ostringstream os(std::ios_base::binary);
 	writeU16(os, TOSERVER_REQUEST_MEDIA);
 	writeU16(os, file_requests.size());
 
-	for(core::list<MediaRequest>::ConstIterator i = file_requests.begin();
-			i != file_requests.end(); i++) {
+	for(std::list<MediaRequest>::const_iterator i = file_requests.begin();
+			i != file_requests.end(); ++i) {
 		os<<serializeString(i->name);
 	}
 
@@ -1601,7 +1601,7 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 		infostream<<"Client: Received media announcement: packet size: "
 				<<datasize<<std::endl;
 
-		core::list<MediaRequest> file_requests;
+		std::list<MediaRequest> file_requests;
 
 		for(int i=0; i<num_files; i++)
 		{
@@ -1620,7 +1620,7 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 			std::string sha1_hex = hex_encode(sha1_raw);
 			std::ostringstream tmp_os(std::ios_base::binary);
 			bool found_in_cache = m_media_cache.load_sha1(sha1_raw, tmp_os);
-			m_media_name_sha1_map.set(name, sha1_raw);
+			m_media_name_sha1_map[name] = sha1_raw;
 
 			// If found in cache, try to load it from there
 			if(found_in_cache)
@@ -1656,16 +1656,16 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 			request_media(file_requests);
 		} else {
 			#if USE_CURL
-			core::list<MediaFetchThread*>::Iterator cur = m_media_fetch_threads.begin();
-			for(core::list<MediaRequest>::Iterator i = file_requests.begin();
-					i != file_requests.end(); i++) {
+			std::list<MediaFetchThread*>::iterator cur = m_media_fetch_threads.begin();
+			for(std::list<MediaRequest>::iterator i = file_requests.begin();
+					i != file_requests.end(); ++i) {
 				(*cur)->m_file_requests.push_back(*i);
 				cur++;
 				if (cur == m_media_fetch_threads.end())
 					cur = m_media_fetch_threads.begin();
 			}
-			for (core::list<MediaFetchThread*>::Iterator i = m_media_fetch_threads.begin();
-					i != m_media_fetch_threads.end(); i++) {
+			for (std::list<MediaFetchThread*>::iterator i = m_media_fetch_threads.begin();
+					i != m_media_fetch_threads.end(); ++i) {
 				(*i)->m_remote_url = remote_media;
 				(*i)->Start();
 			}
@@ -1741,9 +1741,9 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 			}
 
 			{
-				core::map<std::string, std::string>::Node *n;
+				std::map<std::string, std::string>::iterator n;
 				n = m_media_name_sha1_map.find(name);
-				if(n == NULL)
+				if(n == m_media_name_sha1_map.end())
 					errorstream<<"The server sent a file that has not "
 							<<"been announced."<<std::endl;
 				else
@@ -2334,7 +2334,7 @@ ClientActiveObject * Client::getSelectedActiveObject(
 		core::line3d<f32> shootline_on_map
 	)
 {
-	core::array<DistanceSortedActiveObject> objects;
+	std::vector<DistanceSortedActiveObject> objects;
 
 	m_env.getActiveObjects(from_pos_f_on_map, max_d, objects);
 
@@ -2342,7 +2342,7 @@ ClientActiveObject * Client::getSelectedActiveObject(
 	
 	// Sort them.
 	// After this, the closest object is the first in the array.
-	objects.sort();
+	std::sort(objects.begin(), objects.end());
 
 	for(u32 i=0; i<objects.size(); i++)
 	{
