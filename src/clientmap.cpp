@@ -30,6 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "profiler.h"
 #include "settings.h"
 #include "util/mathconstants.h"
+#include <algorithm>
 
 #define PP(x) "("<<(x).X<<","<<(x).Y<<","<<(x).Z<<")"
 
@@ -164,11 +165,11 @@ void ClientMap::updateDrawList(video::IVideoDriver* driver)
 
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 
-	for(core::map<v3s16, MapBlock*>::Iterator
-			i = m_drawlist.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator
+			i = m_drawlist.begin();
+			i != m_drawlist.end(); ++i)
 	{
-		MapBlock *block = i.getNode()->getValue();
+		MapBlock *block = i->second;
 		block->refDrop();
 	}
 	m_drawlist.clear();
@@ -350,7 +351,7 @@ void ClientMap::updateDrawList(video::IVideoDriver* driver)
 		} // foreach sectorblocks
 
 		if(sector_blocks_drawn != 0)
-			m_last_drawn_sectors[sp] = true;
+			m_last_drawn_sectors.insert(sp);
 	}
 
 	m_control.blocks_would_have_drawn = blocks_would_have_drawn;
@@ -368,12 +369,12 @@ void ClientMap::updateDrawList(video::IVideoDriver* driver)
 struct MeshBufList
 {
 	video::SMaterial m;
-	core::list<scene::IMeshBuffer*> bufs;
+	std::list<scene::IMeshBuffer*> bufs;
 };
 
 struct MeshBufListList
 {
-	core::list<MeshBufList> lists;
+	std::list<MeshBufList> lists;
 	
 	void clear()
 	{
@@ -382,8 +383,8 @@ struct MeshBufListList
 	
 	void add(scene::IMeshBuffer *buf)
 	{
-		for(core::list<MeshBufList>::Iterator i = lists.begin();
-				i != lists.end(); i++){
+		for(std::list<MeshBufList>::iterator i = lists.begin();
+				i != lists.end(); ++i){
 			MeshBufList &l = *i;
 			if(l.m == buf->getMaterial()){
 				l.bufs.push_back(buf);
@@ -487,11 +488,11 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 
 	MeshBufListList drawbufs;
 
-	for(core::map<v3s16, MapBlock*>::Iterator
-			i = m_drawlist.getIterator();
-			i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator
+			i = m_drawlist.begin();
+			i != m_drawlist.end(); ++i)
 	{
-		MapBlock *block = i.getNode()->getValue();
+		MapBlock *block = i->second;
 
 		// If the mesh of the block happened to get deleted, ignore it
 		if(block->mesh == NULL)
@@ -569,11 +570,11 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 		}
 	}
 	
-	core::list<MeshBufList> &lists = drawbufs.lists;
+	std::list<MeshBufList> &lists = drawbufs.lists;
 	
 	int timecheck_counter = 0;
-	for(core::list<MeshBufList>::Iterator i = lists.begin();
-			i != lists.end(); i++)
+	for(std::list<MeshBufList>::iterator i = lists.begin();
+			i != lists.end(); ++i)
 	{
 		{
 			timecheck_counter++;
@@ -595,8 +596,8 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 		
 		driver->setMaterial(list.m);
 		
-		for(core::list<scene::IMeshBuffer*>::Iterator j = list.bufs.begin();
-				j != list.bufs.end(); j++)
+		for(std::list<scene::IMeshBuffer*>::iterator j = list.bufs.begin();
+				j != list.bufs.end(); ++j)
 		{
 			scene::IMeshBuffer *buf = *j;
 			driver->drawMeshBuffer(buf);
@@ -769,7 +770,7 @@ int ClientMap::getBackgroundBrightness(float max_d, u32 daylight_factor,
 	float sunlight_min_d = max_d*0.8;
 	if(sunlight_min_d > 35*BS)
 		sunlight_min_d = 35*BS;
-	core::array<int> values;
+	std::vector<int> values;
 	for(u32 i=0; i<sizeof(z_directions)/sizeof(*z_directions); i++){
 		v3f z_dir = z_directions[i];
 		z_dir.normalize();
@@ -798,7 +799,7 @@ int ClientMap::getBackgroundBrightness(float max_d, u32 daylight_factor,
 	}
 	int brightness_sum = 0;
 	int brightness_count = 0;
-	values.sort();
+	std::sort(values.begin(), values.end());
 	u32 num_values_to_use = values.size();
 	if(num_values_to_use >= 10)
 		num_values_to_use -= num_values_to_use/2;

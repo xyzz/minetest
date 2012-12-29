@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "irrlichttypes_extrabloated.h"
 #include "activeobject.h"
+#include <map>
 
 /*
 
@@ -96,7 +97,7 @@ protected:
 	ClientEnvironment *m_env;
 private:
 	// Used for creating objects based on type
-	static core::map<u16, Factory> m_types;
+	static std::map<u16, Factory> m_types;
 };
 
 struct DistanceSortedActiveObject
