@@ -1190,7 +1190,7 @@ void ServerEnvironment::step(float dtime)
 			// Step object
 			obj->step(dtime, send_recommended);
 			// Read messages from object
-			while(obj->m_messages_out.size() > 0)
+			while(!obj->m_messages_out.empty())
 			{
 				m_active_object_messages.push_back(
 						obj->m_messages_out.pop_front());
@@ -1396,7 +1396,7 @@ void ServerEnvironment::getRemovedActiveObjects(v3s16 pos, s16 radius,
 
 ActiveObjectMessage ServerEnvironment::getActiveObjectMessage()
 {
-	if(m_active_object_messages.size() == 0)
+	if(m_active_object_messages.empty())
 		return ActiveObjectMessage(0);
 	
 	return m_active_object_messages.pop_front();
@@ -2387,7 +2387,7 @@ void ClientEnvironment::getActiveObjects(v3f origin, f32 max_d,
 
 ClientEnvEvent ClientEnvironment::getClientEvent()
 {
-	if(m_client_event_queue.size() == 0)
+	if(m_client_event_queue.empty())
 	{
 		ClientEnvEvent event;
 		event.type = CEE_NONE;

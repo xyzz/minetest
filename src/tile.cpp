@@ -769,7 +769,7 @@ void TextureSource::processQueue()
 	/*
 		Fetch textures
 	*/
-	if(m_get_texture_queue.size() > 0)
+	if(!m_get_texture_queue.empty())
 	{
 		GetRequest<std::string, u32, u8, u8>
 				request = m_get_texture_queue.pop();

@@ -599,7 +599,7 @@ public:
 	void processQueue(IGameDef *gamedef)
 	{
 #ifndef SERVER
-		while(m_get_clientcached_queue.size() > 0)
+		while(!m_get_clientcached_queue.empty())
 		{
 			GetRequest<std::string, ClientCached*, u8, u8>
 					request = m_get_clientcached_queue.pop();

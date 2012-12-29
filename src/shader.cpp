@@ -531,7 +531,7 @@ void ShaderSource::processQueue()
 	/*
 		Fetch shaders
 	*/
-	if(m_get_shader_queue.size() > 0){
+	if(!m_get_shader_queue.empty()){
 		GetRequest<std::string, u32, u8, u8>
 				request = m_get_shader_queue.pop();
 

@@ -726,7 +726,7 @@ void Client::step(float dtime)
 				<<std::endl;*/
 		
 		int num_processed_meshes = 0;
-		while(m_mesh_update_thread.m_queue_out.size() > 0)
+		while(!m_mesh_update_thread.m_queue_out.empty())
 		{
 			num_processed_meshes++;
 			MeshUpdateResult r = m_mesh_update_thread.m_queue_out.pop_front();
@@ -781,7 +781,7 @@ void Client::step(float dtime)
 		for (std::list<MediaFetchThread*>::iterator thread = m_media_fetch_threads.begin();
 				thread != m_media_fetch_threads.end(); ++thread) {
 			all_stopped &= !(*thread)->IsRunning();
-			while ((*thread)->m_file_data.size() > 0) {
+			while (!(*thread)->m_file_data.empty()) {
 				std::pair <std::string, std::string> out = (*thread)->m_file_data.pop_front();
 				++m_media_received_count;
 

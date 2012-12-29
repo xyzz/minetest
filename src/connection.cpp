@@ -588,7 +588,7 @@ void * Connection::Thread()
 		
 		runTimeouts(dtime);
 
-		while(m_command_queue.size() != 0){
+		while(!m_command_queue.empty()){
 			ConnectionCommand c = m_command_queue.pop_front();
 			processCommand(c);
 		}
@@ -656,7 +656,7 @@ void Connection::send(float dtime)
 				peer->m_max_packets_per_second;
 	}
 	Queue<OutgoingPacket> postponed_packets;
-	while(m_outgoing_queue.size() != 0){
+	while(!m_outgoing_queue.empty()){
 		OutgoingPacket packet = m_outgoing_queue.pop_front();
 		Peer *peer = getPeerNoEx(packet.peer_id);
 		if(!peer)
@@ -671,7 +671,7 @@ void Connection::send(float dtime)
 			postponed_packets.push_back(packet);
 		}
 	}
-	while(postponed_packets.size() != 0){
+	while(!postponed_packets.empty()){
 		m_outgoing_queue.push_back(postponed_packets.pop_front());
 	}
 	for(std::map<u16, Peer*>::iterator
@@ -1547,7 +1547,7 @@ bool Connection::deletePeer(u16 peer_id, bool timeout)
 
 ConnectionEvent Connection::getEvent()
 {
-	if(m_event_queue.size() == 0){
+	if(m_event_queue.empty()){
 		ConnectionEvent e;
 		e.type = CONNEVENT_NONE;
 		return e;
